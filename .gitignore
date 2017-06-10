@@ -12,3 +12,18 @@
 
 # Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
 .glide/
+.gradle
+
+.idea/workspace.xml
+.idea/modules.xml
+.idea/misc.xml
+.idea/gradle.xml
+.idea/compiler.xml
+.idea/shelf/
+.idea/libraries/
+.idea/.name
+.idea/*.png
+*.iml
+
+/testData/performance/docker/
+/testData/performance/go/
