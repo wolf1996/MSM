@@ -3,15 +3,15 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"io/ioutil"
+	"io"
+	"encoding/json"
 	"github.com/wolf1996/MSM/server/application/view/user"
 	"github.com/wolf1996/MSM/server/application/view"
 	"github.com/wolf1996/MSM/server/application/models/user_model"
 	"github.com/wolf1996/MSM/server/application/session_manager"
-	"io/ioutil"
-	"io"
-	"github.com/wolf1996/MSM/server/logsystem"
-	"encoding/json"
 	"github.com/wolf1996/MSM/server/application/models"
+	"github.com/wolf1996/MSM/server/logsystem"
 )
 
 func init() {
@@ -19,7 +19,7 @@ func init() {
 	AddRout(rout)
 	rout = Route{"SignInUser", "POST", "/user_model/sign_in", signIn}
 	AddRout(rout)
-	rout = Route{"GetUserId", "GET", "/user_model/user_id", getUserId}
+	rout = Route{"GetUserInfo", "GET", "/user_model/user_info", getUserInfo}
 	AddRout(rout)
 }
 
@@ -74,7 +74,7 @@ func signIn(w http.ResponseWriter, r *http.Request) {
 	view.WriteMessage(&w,nil, 0)
 }
 
-func getUserId(w http.ResponseWriter, r *http.Request)()  {
+func getUserInfo(w http.ResponseWriter, r *http.Request)()  {
 	sess, err := session_manager.GetSession(r, "user_session")
 	if err != nil {
 		logsystem.Error.Printf("Get session error %s", err)
@@ -89,5 +89,16 @@ func getUserId(w http.ResponseWriter, r *http.Request)()  {
 		view.WriteMessage(&w,view.ErrorMsg{"Login first"}, 1)
 		return
 	}
-	view.WriteMessage(&w,id, 0)
+	md, errDb := user_model.UserInfoQuery(id.(int64))
+	if errDb != nil {
+		logsystem.Error.Printf("Database Error %s", errDb)
+		view.WriteMessage(&w,view.ErrorMsg{"Database Error"}, 2)
+		return
+	}
+	inf := user.UserInfo{md.FamilyName.String, md.Name.String, md.SecondName.String,
+		md.DateReceiving.String, md.IssuedBy.String, md.DivisionNumber.String,
+		md.RegistrationAddres.String, md.MailingAddres.String, md.BirthDay.String,
+		md.Sex.Bool, md.HomePhone.String, md.MobilePhone.String, md.CitizenShip.String,
+	md.EMail}
+	view.WriteMessage(&w,inf, 0)
 }
