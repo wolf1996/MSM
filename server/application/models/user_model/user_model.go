@@ -3,7 +3,6 @@ package user_model
 import (
 	"time"
 	"database/sql"
-	_"github.com/lib/pq"
 )
 
 type Table struct{

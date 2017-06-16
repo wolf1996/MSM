@@ -15,13 +15,15 @@ type loginData struct {
 func LogInUser(user, pass string)  (int64, models.ErrorModel){
 	qr,err := models.Database.Query("SELECT id, e_mail, pass_hash " +
 		"FROM USERS WHERE e_mail = $1 ;", user)
+	defer qr.Close()
 	if err != nil {
 		return 0, models.ErrorModelImpl{Msg:fmt.Sprint("Database Error %s", err),Code:2}
 	}
 	var ldata loginData
-	qr.Next()
+	if ! qr.Next(){
+		return 0, models.ErrorModelImpl{Msg:fmt.Sprint("Invalid auth data %s", err),Code:1}
+	}
 	err = qr.Scan(&ldata.Id,&ldata.UserEmail,&ldata.PassHash)
-	qr.Close()
 	if err != nil {
 		return 0, models.ErrorModelImpl{Msg:fmt.Sprint("Database Error %s", err),Code:2}
 	}

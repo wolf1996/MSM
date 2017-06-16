@@ -47,6 +47,7 @@ func UserInfoQuery(id int64) (UserInfoModel, models.ErrorModel)  {
 		"SELECT family_name, name, second_name, date_receiving, issued_by, division_number, " +
 			"registration_addres ,mailing_addres ,home_phone ,mobile_phone ,citizenship ,e_mail " +
 		"FROM USERS WHERE id = $1 ;", id)
+	defer qr.Close()
 	if err != nil {
 		return UserInfoModel{}, models.ErrorModelImpl{Msg:fmt.Sprint("Database Error %s", err),Code:2}
 	}
@@ -55,7 +56,6 @@ func UserInfoQuery(id int64) (UserInfoModel, models.ErrorModel)  {
 	err = qr.Scan(&info.FamilyName, &info.Name, &info.SecondName, &info.DateReceiving, &info.IssuedBy,
 	&info.DateReceiving, &info.RegistrationAddres, &info.MailingAddres, &info.HomePhone, &info.MobilePhone,
 	&info.CitizenShip, &info.EMail)
-	qr.Close()
 	if err != nil {
 		return  UserInfoModel{}, models.ErrorModelImpl{Msg:fmt.Sprint("Database Error %s", err),Code:2}
 	}
