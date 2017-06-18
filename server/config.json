@@ -2,5 +2,5 @@
   "port":":8080",
   "DbLogin":"iot_api_user",
   "DbPass":"qwerty",
-  "DbUrl":"localhost:5432/testgodb"
+  "DbUrl":"localhost:5433/testgodb"
 }

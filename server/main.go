@@ -17,7 +17,7 @@ type config struct {
 
 func main() {
 	logsystem.Init(ioutil.Discard, os.Stdout, os.Stdout, os.Stderr)
-	file, err := os.Open("/home/ksg/disk_d/Projects/MahnoInc/M4M/src/github.com/wolf1996/MSM/server/config.json")
+	file, err := os.Open("/config.json")
 	if err != nil {
 		logsystem.Error.Printf("%s , %s", "config file open error", err)
 		return
