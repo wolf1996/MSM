@@ -15,11 +15,11 @@ import (
 )
 
 func init() {
-	rout := Route{"TestUser", "GET", "/user_model/test", test}
+	rout := Route{"TestUser", "GET", "/user/test", test}
 	AddRout(rout)
-	rout = Route{"SignInUser", "POST", "/user_model/sign_in", signIn}
+	rout = Route{"SignInUser", "POST", "/user/sign_in", signIn}
 	AddRout(rout)
-	rout = Route{"GetUserInfo", "GET", "/user_model/user_info", getUserInfo}
+	rout = Route{"GetUserInfo", "GET", "/user/user_info", getUserInfo}
 	AddRout(rout)
 }
 
