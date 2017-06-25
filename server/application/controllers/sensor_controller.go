@@ -16,14 +16,12 @@ func init() {
 	AddRout(rout)
 }
 
-
-//TODO СДЕЛАТЬ ЛИСТ СЕНСОРОВ
-
 func getControllerSensor(w http.ResponseWriter, r *http.Request){
 	sess, err := session_manager.GetSession(r, "user_session")
 	if err != nil {
 		logsystem.Error.Printf("Get session error %s", err)
-		view.WriteMessage(&w,nil, 2)
+		view.WriteMessage(&w,view.ErrorMsg{"Session Error"}, 2)
+		w.WriteHeader(http.StatusForbidden)
 		sess,_ = session_manager.NewSession(r,"user_session")
 		sess.Save(r,w)
 		return
@@ -31,12 +29,14 @@ func getControllerSensor(w http.ResponseWriter, r *http.Request){
 	id, ok := sess.Values["user"].(int64)
 	if !ok{
 		logsystem.Error.Printf("LogIn first")
+		w.WriteHeader(http.StatusForbidden)
 		view.WriteMessage(&w,view.ErrorMsg{"Login first"}, 1)
 		return
 	}
 	vals := mux.Vars(r)
 	if vals == nil {
 		logsystem.Error.Printf("Can't parse argument %s", err)
+		w.WriteHeader(http.StatusBadRequest)
 		view.WriteMessage(&w,view.ErrorMsg{"Can't parse argument"}, 3)
 		return
 	}
@@ -44,12 +44,14 @@ func getControllerSensor(w http.ResponseWriter, r *http.Request){
 	controllerId, err := strconv.ParseInt(cId, 10, 64)
 	if err != nil {
 		logsystem.Error.Printf("Can't parse argument %s", err)
+		w.WriteHeader(http.StatusBadRequest)
 		view.WriteMessage(&w,view.ErrorMsg{"Can't parse argument"}, 3)
 		return
 	}
 	sensors, errDb := sensor_model.GetControlledSensors(controllerId, id)
 	if errDb != nil {
 		logsystem.Error.Printf("Database Error %s", errDb)
+		w.WriteHeader(http.StatusInternalServerError)
 		view.WriteMessage(&w,view.ErrorMsg{"Database Error"}, 2)
 		return
 	}

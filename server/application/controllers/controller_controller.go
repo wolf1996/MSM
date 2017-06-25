@@ -25,20 +25,23 @@ func getUserController(w http.ResponseWriter, r *http.Request){
 	sess, err := session_manager.GetSession(r, "user_session")
 	if err != nil {
 		logsystem.Error.Printf("Get session error %s", err)
-		view.WriteMessage(&w,nil, 2)
+		view.WriteMessage(&w,view.ErrorMsg{"Session Error"}, 2)
 		sess,_ = session_manager.NewSession(r,"user_session")
+		w.WriteHeader(http.StatusForbidden)
 		sess.Save(r,w)
 		return
 	}
 	id := sess.Values["user"]
 	if id == nil{
 		logsystem.Error.Printf("LogIn first")
+		w.WriteHeader(http.StatusForbidden)
 		view.WriteMessage(&w,view.ErrorMsg{"Login first"}, 1)
 		return
 	}
 	md, errDb := controller_model.GetUserControllers(id.(int64))
 	if errDb != nil {
 		logsystem.Error.Printf("Database Error %s", errDb)
+		w.WriteHeader(http.StatusInternalServerError)
 		view.WriteMessage(&w,view.ErrorMsg{"Database Error"}, 2)
 		return
 	}

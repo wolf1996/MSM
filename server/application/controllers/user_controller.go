@@ -46,12 +46,14 @@ func signIn(w http.ResponseWriter, r *http.Request) {
 	logIn := user.LoginForm{}
 	if err := json.Unmarshal(body, &logIn); err!= nil{
 		logsystem.Error.Printf("Unmarshal error %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		view.WriteMessage(&w,view.ErrorMsg{"Unmarshal error"}, 3)
 		return
 	}
 	isValid := logIn.Validate()
 	if ! isValid{
 		logsystem.Error.Printf("Invalid")
+		w.WriteHeader(http.StatusBadRequest)
 		view.WriteMessage(&w, view.ErrorMsg{"Validation Failed"}, 4)
 		return
 	}
@@ -59,19 +61,21 @@ func signIn(w http.ResponseWriter, r *http.Request) {
 	var loggerr models.ErrorModel
 	if id, loggerr = user_model.LogInUser(logIn.EMail, logIn.Pass); loggerr != nil{
 		logsystem.Error.Printf("Login failed %s", loggerr)
+		w.WriteHeader(http.StatusForbidden)
 		view.WriteMessage(&w, view.ErrorMsg{"Login Failed"}, 5)
 		return
 	}
 	sess, err := session_manager.GetSession(r, "user_session")
 	if err != nil {
 		logsystem.Error.Printf("Get session error %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		view.WriteMessage(&w,view.ErrorMsg{"Session error"}, 6)
 		sess.Save(r,w)
 		return
 	}
 	sess.Values["user"] = id
 	sess.Save(r,w)
-	view.WriteMessage(&w,nil, 0)
+	view.WriteMessage(&w,view.ErrorMsg{"Ok"}, 0)
 }
 
 func getUserInfo(w http.ResponseWriter, r *http.Request)()  {
@@ -80,18 +84,21 @@ func getUserInfo(w http.ResponseWriter, r *http.Request)()  {
 		logsystem.Error.Printf("Get session error %s", err)
 		view.WriteMessage(&w,nil, 2)
 		sess,_ = session_manager.NewSession(r,"user_session")
+		w.WriteHeader(http.StatusForbidden)
 		sess.Save(r,w)
 		return
 	}
 	id := sess.Values["user"]
 	if id == nil{
 		logsystem.Error.Printf("LogIn first")
+		w.WriteHeader(http.StatusForbidden)
 		view.WriteMessage(&w,view.ErrorMsg{"Login first"}, 1)
 		return
 	}
 	md, errDb := user_model.UserInfoQuery(id.(int64))
 	if errDb != nil {
 		logsystem.Error.Printf("Database Error %s", errDb)
+		w.WriteHeader(http.StatusInternalServerError)
 		view.WriteMessage(&w,view.ErrorMsg{"Database Error"}, 2)
 		return
 	}
