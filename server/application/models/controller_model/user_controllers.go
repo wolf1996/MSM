@@ -14,10 +14,10 @@ func GetUserControllers( id int64 ) (ControllerModels, models.ErrorModel){
 	qr,err := models.Database.Query(
 		"SELECT * " +
 			"FROM CONTROLLERS WHERE user_id = $1 ;", id)
-	defer qr.Close()
 	if err != nil {
 		return infoSlice, models.ErrorModelImpl{Msg:fmt.Sprint("Database Error %s", err),Code:2}
 	}
+	defer qr.Close()
 	var info ControllerModel
 	for qr.Next() {
 		err = qr.Scan(&info.Id, &info.Name, &info.UserId, &info.Adres, &info.ActivationDate,
