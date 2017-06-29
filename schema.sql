@@ -54,6 +54,19 @@ CREATE TABLE IF NOT EXISTS DATA(
   hs UUID
 );
 
+
+CREATE TABLE IF NOT EXISTS TAX (
+  id   SERIAL PRIMARY KEY,
+  name VARCHAR(256),
+  TAX  FLOAT
+);
+
+INSERT INTO  TAX VALUES (
+  1,
+  'Флэш',
+  2.5
+);
+
 -- INSERT INTO DATA VALUES (
 --     1,
 --     '1961-06-16',

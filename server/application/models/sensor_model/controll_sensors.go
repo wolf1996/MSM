@@ -22,7 +22,7 @@ func GetControlledSensors( controllerId, userId int64 ) (SensorModels, models.Er
 	for qr.Next() {
 		err = qr.Scan(&info.Id, &info.Name, &info.ControllerId, &info.ActivationDate,
 			&info.Status, &info.DeactivationDate, &info.SensorType,  &info.Company)
-		if err != nil{
+		if err != nil {
 			return infoSlice, models.ErrorModelImpl{Msg:fmt.Sprint("Database Error %s", err),Code:2}
 		}
 		infoSlice = append(infoSlice, info)

@@ -1,0 +1,1 @@
+https://app.swaggerhub.com/apis/wolf1996/iot_api/1.0.0
