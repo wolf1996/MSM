@@ -8,9 +8,9 @@ import (
 var store = sessions.NewCookieStore([]byte("somesecretkey"))
 
 func GetSession(r *http.Request, name string) (*sessions.Session, error) {
-	return store.Get(r,name)
+	return store.Get(r, name)
 }
 
 func NewSession(r *http.Request, name string) (*sessions.Session, error) {
-	return store.New(r,name)
+	return store.New(r, name)
 }

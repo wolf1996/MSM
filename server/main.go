@@ -9,10 +9,10 @@ import (
 )
 
 type config struct {
-	Port string
+	Port    string
 	DbLogin string
-	DbPass string
-	DbUrl string
+	DbPass  string
+	DbUrl   string
 }
 
 func main() {

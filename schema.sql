@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS USERS CASCADE ;
 DROP TABLE IF EXISTS CONTROLLERS CASCADE ;
 DROP TABLE IF EXISTS SENSOR CASCADE ;
 DROP TABLE IF EXISTS DATA CASCADE ;
+DROP TABLE IF EXISTS TAX CASCADE ;
 
 CREATE EXTENSION IF NOT EXISTS CITEXT WITH SCHEMA public;
 
@@ -36,6 +37,15 @@ CREATE TABLE IF NOT EXISTS CONTROLLERS(
   controller_type INT
 );
 
+
+
+CREATE TABLE IF NOT EXISTS TAX (
+  id   SERIAL PRIMARY KEY,
+  name VARCHAR(256),
+  TAX  FLOAT
+);
+
+
 CREATE TABLE IF NOT EXISTS SENSOR(
   id SERIAL PRIMARY KEY,
   name VARCHAR(256),
@@ -44,7 +54,8 @@ CREATE TABLE IF NOT EXISTS SENSOR(
   status INT,
   deactivation_date DATE,
   sensor_type INT,
-  company  VARCHAR(256)
+  company  VARCHAR(256),
+  tax INT REFERENCES TAX(id)
 );
 
 CREATE TABLE IF NOT EXISTS DATA(
@@ -52,13 +63,6 @@ CREATE TABLE IF NOT EXISTS DATA(
   date DATE,
   value BIGINT,
   hs UUID
-);
-
-
-CREATE TABLE IF NOT EXISTS TAX (
-  id   SERIAL PRIMARY KEY,
-  name VARCHAR(256),
-  TAX  FLOAT
 );
 
 INSERT INTO  TAX VALUES (
@@ -113,7 +117,8 @@ INSERT INTO SENSOR VALUES (
   1,
   NULL,
   1,
-  'GASPROM'
+  'GASPROM',
+  1
 );
 
 SELECT
@@ -127,5 +132,28 @@ FROM DATA INNER JOIN SENSOR ON DATA.sensor_id = SENSOR.id
 INNER JOIN CONTROLLERS ON SENSOR.controller_id = CONTROLLERS.id
 WHERE sensor_id = 1 AND user_id = 1 AND date > '1961-06-15'
 LIMIT 100;
+
+SELECT max(DATA.value)-min(DATA.value)
+		 FROM DATA INNER JOIN SENSOR ON DATA.sensor_id = SENSOR.id
+		 INNER JOIN CONTROLLERS ON SENSOR.controller_id = CONTROLLERS.id
+		 WHERE sensor_id = 1 AND user_id = 1 AND date >= '01-01-2017'
+		 AND date  < '01-01-2016';
+
+WITH mnths AS (SELECT
+                 extract(MONTH FROM date) AS mnth,
+                 (max(DATA.value)-min(DATA.value)) AS value
+               FROM DATA
+                 INNER JOIN SENSOR ON DATA.sensor_id = SENSOR.id
+                 INNER JOIN CONTROLLERS ON SENSOR.controller_id = CONTROLLERS.id
+               WHERE sensor_id = 1 AND user_id = 1 AND date < '12-12-2017'
+                     AND date > '12-12-2016'
+               GROUP BY 1
+)
+SELECT avg(value)
+FROM mnths;
+
+SELECT * FROM DATA;
+
+
 
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO iot_api_user;

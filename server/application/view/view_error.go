@@ -5,15 +5,15 @@ type ErrorView interface {
 	Id() int
 }
 
-type  ErrorViewImpl struct {
-	Msg string
+type ErrorViewImpl struct {
+	Msg  string
 	Code int
 }
 
-func (e ErrorViewImpl)Error()string  {
+func (e ErrorViewImpl) Error() string {
 	return e.Msg
 }
 
-func (e ErrorViewImpl)Id()int  {
+func (e ErrorViewImpl) Id() int {
 	return e.Code
 }

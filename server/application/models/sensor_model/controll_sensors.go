@@ -1,29 +1,70 @@
 package sensor_model
 
 import (
-	"github.com/wolf1996/MSM/server/application/models"
+	"database/sql"
 	"fmt"
+	"github.com/wolf1996/MSM/server/application/models"
 )
 
-type SensorModel Table
+type SensorModel struct {
+	Id               int
+	Name             string
+	ControllerId     sql.NullInt64
+	ActivationDate   sql.NullString
+	Status           int
+	DeactivationDate sql.NullString
+	SensorType       int
+	Company          string
+}
 type SensorModels []SensorModel
 
-func GetControlledSensors( controllerId, userId int64 ) (SensorModels, models.ErrorModel){
+type SensorTaxedModel struct {
+	Id      int64
+	Name    string
+	Tax     float64
+	TaxName string
+}
+type SensorTaxedModels []SensorTaxedModel
+
+func GetControlledSensors(controllerId, userId int64) (SensorModels, models.ErrorModel) {
 	var infoSlice SensorModels
-	qr,err := models.Database.Query(
+	qr, err := models.Database.Query(
 		" SELECT "+
-	" SENSOR.id, SENSOR.Name, SENSOR.controller_id, SENSOR.activation_date, SENSOR.status, SENSOR.deactivation_date, SENSOR.sensor_type, SENSOR.company"+
-	" FROM SENSOR INNER JOIN CONTROLLERS ON CONTROLLERS.id = SENSOR.controller_id WHERE controller_id = $1 AND user_id = $2;", controllerId, userId)
+			" SENSOR.id, SENSOR.Name, SENSOR.controller_id, SENSOR.activation_date, SENSOR.status, SENSOR.deactivation_date, SENSOR.sensor_type, SENSOR.company"+
+			" FROM SENSOR INNER JOIN CONTROLLERS ON CONTROLLERS.id = SENSOR.controller_id WHERE controller_id = $1 AND user_id = $2;", controllerId, userId)
 	if err != nil {
-		return infoSlice, models.ErrorModelImpl{Msg:fmt.Sprint("Database Error %s", err),Code:2}
+		return infoSlice, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: 2}
 	}
 	defer qr.Close()
 	var info SensorModel
 	for qr.Next() {
 		err = qr.Scan(&info.Id, &info.Name, &info.ControllerId, &info.ActivationDate,
-			&info.Status, &info.DeactivationDate, &info.SensorType,  &info.Company)
+			&info.Status, &info.DeactivationDate, &info.SensorType, &info.Company)
 		if err != nil {
-			return infoSlice, models.ErrorModelImpl{Msg:fmt.Sprint("Database Error %s", err),Code:2}
+			return infoSlice, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: 2}
+		}
+		infoSlice = append(infoSlice, info)
+	}
+	return infoSlice, nil
+}
+
+func GetTaxedSensors(controllerId, userId int64) (SensorTaxedModels, models.ErrorModel) {
+	var infoSlice SensorTaxedModels
+	qr, err := models.Database.Query(
+		" SELECT "+
+			" SENSOR.id, SENSOR.Name, TAX.Tax, TAX.Name"+
+			" FROM SENSOR INNER JOIN CONTROLLERS ON CONTROLLERS.id = SENSOR.controller_id "+
+			" JOIN TAX ON SENSOR.tax = TAX.id "+
+			" WHERE controller_id = $1 AND user_id = $2;", controllerId, userId)
+	if err != nil {
+		return infoSlice, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: 2}
+	}
+	defer qr.Close()
+	var info SensorTaxedModel
+	for qr.Next() {
+		err = qr.Scan(&info.Id, &info.Name, &info.Tax, &info.TaxName)
+		if err != nil {
+			return infoSlice, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: 2}
 		}
 		infoSlice = append(infoSlice, info)
 	}

@@ -2,25 +2,25 @@ package user_model
 
 import (
 	"database/sql"
-	"github.com/wolf1996/MSM/server/application/models"
 	"fmt"
+	"github.com/wolf1996/MSM/server/application/models"
 )
 
-type UserInfoModel struct{
-	FamilyName sql.NullString
-	Name sql.NullString
-	SecondName sql.NullString
-	DateReceiving sql.NullString
-	IssuedBy sql.NullString
-	DivisionNumber sql.NullString
+type UserInfoModel struct {
+	FamilyName         sql.NullString
+	Name               sql.NullString
+	SecondName         sql.NullString
+	DateReceiving      sql.NullString
+	IssuedBy           sql.NullString
+	DivisionNumber     sql.NullString
 	RegistrationAddres sql.NullString
-	MailingAddres sql.NullString
-	BirthDay sql.NullString
-	Sex sql.NullBool
-	HomePhone sql.NullString
-	MobilePhone sql.NullString
-	CitizenShip sql.NullString
-	EMail string
+	MailingAddres      sql.NullString
+	BirthDay           sql.NullString
+	Sex                sql.NullBool
+	HomePhone          sql.NullString
+	MobilePhone        sql.NullString
+	CitizenShip        sql.NullString
+	EMail              string
 }
 
 /*
@@ -40,24 +40,24 @@ CREATE TABLE IF NOT EXISTS USERS(
   e_mail VARCHAR(50),
   pass_hash VARCHAR(256)
 );
- */
+*/
 
-func UserInfoQuery(id int64) (UserInfoModel, models.ErrorModel)  {
-	qr,err := models.Database.Query(
-		"SELECT family_name, name, second_name, date_receiving, issued_by, division_number, " +
-			"registration_addres ,mailing_addres ,home_phone ,mobile_phone ,citizenship ,e_mail " +
-		"FROM USERS WHERE id = $1 ;", id)
+func UserInfoQuery(id int64) (UserInfoModel, models.ErrorModel) {
+	qr, err := models.Database.Query(
+		"SELECT family_name, name, second_name, date_receiving, issued_by, division_number, "+
+			"registration_addres ,mailing_addres ,home_phone ,mobile_phone ,citizenship ,e_mail "+
+			"FROM USERS WHERE id = $1 ;", id)
 	if err != nil {
-		return UserInfoModel{}, models.ErrorModelImpl{Msg:fmt.Sprint("Database Error %s", err),Code:2}
+		return UserInfoModel{}, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: 2}
 	}
 	defer qr.Close()
 	var info UserInfoModel
 	qr.Next()
 	err = qr.Scan(&info.FamilyName, &info.Name, &info.SecondName, &info.DateReceiving, &info.IssuedBy,
-	&info.DateReceiving, &info.RegistrationAddres, &info.MailingAddres, &info.HomePhone, &info.MobilePhone,
-	&info.CitizenShip, &info.EMail)
+		&info.DateReceiving, &info.RegistrationAddres, &info.MailingAddres, &info.HomePhone, &info.MobilePhone,
+		&info.CitizenShip, &info.EMail)
 	if err != nil {
-		return  UserInfoModel{}, models.ErrorModelImpl{Msg:fmt.Sprint("Database Error %s", err),Code:2}
+		return UserInfoModel{}, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: 2}
 	}
 	return info, nil
 }

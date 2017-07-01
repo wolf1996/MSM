@@ -2,8 +2,8 @@ package application
 
 import (
 	"github.com/wolf1996/MSM/server/application/controllers"
-	"net/http"
 	"github.com/wolf1996/MSM/server/application/models"
+	"net/http"
 )
 
 func AppStart(port, dbLogin, dbPass, dbURL string) {

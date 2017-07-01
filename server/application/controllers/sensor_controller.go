@@ -1,14 +1,14 @@
 package controllers
 
 import (
-	"net/http"
+	"github.com/gorilla/mux"
+	"github.com/wolf1996/MSM/server/application/models/sensor_model"
 	"github.com/wolf1996/MSM/server/application/session_manager"
 	"github.com/wolf1996/MSM/server/application/view"
-	"github.com/wolf1996/MSM/server/logsystem"
-	"strconv"
-	"github.com/wolf1996/MSM/server/application/models/sensor_model"
 	"github.com/wolf1996/MSM/server/application/view/sensor"
-	"github.com/gorilla/mux"
+	"github.com/wolf1996/MSM/server/logsystem"
+	"net/http"
+	"strconv"
 )
 
 func init() {
@@ -16,28 +16,28 @@ func init() {
 	AddRout(rout)
 }
 
-func getControllerSensor(w http.ResponseWriter, r *http.Request){
+func getControllerSensor(w http.ResponseWriter, r *http.Request) {
 	sess, err := session_manager.GetSession(r, "user_session")
 	if err != nil {
 		logsystem.Error.Printf("Get session error %s", err)
-		view.WriteMessage(&w,view.ErrorMsg{"Session Error"}, 2)
+		view.WriteMessage(&w, view.ErrorMsg{"Session Error"}, 2)
 		w.WriteHeader(http.StatusForbidden)
-		sess,_ = session_manager.NewSession(r,"user_session")
-		sess.Save(r,w)
+		sess, _ = session_manager.NewSession(r, "user_session")
+		sess.Save(r, w)
 		return
 	}
 	id, ok := sess.Values["user"].(int64)
-	if !ok{
+	if !ok {
 		logsystem.Error.Printf("LogIn first")
 		w.WriteHeader(http.StatusForbidden)
-		view.WriteMessage(&w,view.ErrorMsg{"Login first"}, 1)
+		view.WriteMessage(&w, view.ErrorMsg{"Login first"}, 1)
 		return
 	}
 	vals := mux.Vars(r)
 	if vals == nil {
 		logsystem.Error.Printf("Can't parse argument %s", err)
 		w.WriteHeader(http.StatusBadRequest)
-		view.WriteMessage(&w,view.ErrorMsg{"Can't parse argument"}, 3)
+		view.WriteMessage(&w, view.ErrorMsg{"Can't parse argument"}, 3)
 		return
 	}
 	cId := vals["id"]
@@ -45,21 +45,21 @@ func getControllerSensor(w http.ResponseWriter, r *http.Request){
 	if err != nil {
 		logsystem.Error.Printf("Can't parse argument %s", err)
 		w.WriteHeader(http.StatusBadRequest)
-		view.WriteMessage(&w,view.ErrorMsg{"Can't parse argument"}, 3)
+		view.WriteMessage(&w, view.ErrorMsg{"Can't parse argument"}, 3)
 		return
 	}
 	sensors, errDb := sensor_model.GetControlledSensors(controllerId, id)
 	if errDb != nil {
 		logsystem.Error.Printf("Database Error %s", errDb)
 		w.WriteHeader(http.StatusInternalServerError)
-		view.WriteMessage(&w,view.ErrorMsg{"Database Error"}, 2)
+		view.WriteMessage(&w, view.ErrorMsg{"Database Error"}, 2)
 		return
 	}
 	var sensorsInfo sensor.SensorsInfo
-	for _,v := range sensors {
+	for _, v := range sensors {
 		inf := sensor.SensorInfo{v.Id, v.Name, v.ControllerId.Int64, v.ActivationDate.String, v.Status,
-		v.DeactivationDate.String, v.SensorType, v.Company}
+			v.DeactivationDate.String, v.SensorType, v.Company}
 		sensorsInfo = append(sensorsInfo, inf)
 	}
-	view.WriteMessage(&w,sensorsInfo, 0)
+	view.WriteMessage(&w, sensorsInfo, 0)
 }

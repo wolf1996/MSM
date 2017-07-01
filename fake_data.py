@@ -15,7 +15,7 @@ def main():
     );
     '''
     today = date.today()
-    size = 365
+    size = 732
     rg = range(0,size)
     c_id = 1
     hs = 'ff62d9d0cc926a7516e408b4ad1a0537'

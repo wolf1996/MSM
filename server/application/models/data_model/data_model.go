@@ -4,9 +4,9 @@ import "time"
 
 type Table struct {
 	SensorId int
-	Date time.Time
-	Value int64
-	Hash string
+	Date     time.Time
+	Value    int64
+	Hash     string
 }
 
 /*
@@ -16,4 +16,4 @@ CREATE TABLE IF NOT EXISTS DATA(
   value BIGINT,
   hs UUID
 );
- */
+*/
