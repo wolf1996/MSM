@@ -21,6 +21,8 @@ type SensorModels []SensorModel
 type SensorTaxedModel struct {
 	Id      int64
 	Name    string
+	Type    int
+	Status  int
 	Tax     float64
 	TaxName string
 }
@@ -69,4 +71,28 @@ func GetTaxedSensors(controllerId, userId int64) (SensorTaxedModels, models.Erro
 		infoSlice = append(infoSlice, info)
 	}
 	return infoSlice, nil
+}
+
+func GetTaxedSensor(sensorId, userId int64) (SensorTaxedModel, models.ErrorModel) {
+	var info SensorTaxedModel
+	qr, err := models.Database.Query(
+		" SELECT "+
+			" SENSOR.id, SENSOR.Name, SENSOR.sensor_type, SENSOR.status , TAX.Tax, TAX.Name"+
+			" FROM SENSOR INNER JOIN CONTROLLERS ON CONTROLLERS.id = SENSOR.controller_id "+
+			" JOIN TAX ON SENSOR.tax = TAX.id "+
+			" WHERE SENSOR.id = $1 AND user_id = $2;", sensorId, userId)
+	if err != nil {
+		return info, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: 2}
+	}
+	defer qr.Close()
+
+	if qr.Next() {
+		err = qr.Scan(&info.Id, &info.Name, &info.Type, &info.Status, &info.Tax, &info.TaxName)
+		if err != nil {
+			return info, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: 2}
+		}
+	} else {
+		return info, models.ErrorModelImpl{Msg: fmt.Sprint("Database Invalid sensor"), Code: 3}
+	}
+	return info, nil
 }

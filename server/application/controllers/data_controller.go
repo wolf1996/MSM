@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"github.com/wolf1996/MSM/server/application/models/sensor_model"
 )
 
 func init() {
@@ -103,7 +104,19 @@ func getSensorStatsData(w http.ResponseWriter, r *http.Request) {
 
 		}
 	}
-	view.WriteMessage(&w, stats, 0)
+	sensorInfo, errCd := sensor_model.GetTaxedSensor(sensorId,id)
+	if errCd != nil {
+		logsystem.Error.Printf("Invalid sensor")
+		w.WriteHeader(http.StatusInternalServerError)
+		view.WriteMessage(&w, view.ErrorMsg{"Invalid sensor"}, 3)
+		return
+	}
+	accural := float32(sensorInfo.Tax * stats.CurrentMonth)
+	overpay := float32(10.0)
+	rl := float32(accural - overpay)
+	info := data.SensorVidgetData{sensorInfo.Type, sensorInfo.Name,
+	sensorInfo.Status, accural, overpay, rl, stats}
+	view.WriteMessage(&w, info, 0)
 }
 
 func getSensorData(w http.ResponseWriter, r *http.Request) {
