@@ -11,7 +11,6 @@ import (
 	"github.com/wolf1996/MSM/server/logsystem"
 	"net/http"
 	"strconv"
-	"github.com/wolf1996/MSM/server/application/view/data"
 )
 
 func init() {
