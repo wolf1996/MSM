@@ -137,7 +137,7 @@ SELECT max(DATA.value)-min(DATA.value)
 		 FROM DATA INNER JOIN SENSOR ON DATA.sensor_id = SENSOR.id
 		 INNER JOIN CONTROLLERS ON SENSOR.controller_id = CONTROLLERS.id
 		 WHERE sensor_id = 1 AND user_id = 1 AND date >= '01-01-2017'
-		 AND date  < '01-01-2016';
+		 AND date  < '01-02-2017';
 
 WITH mnths AS (SELECT
                  extract(MONTH FROM date) AS mnth,

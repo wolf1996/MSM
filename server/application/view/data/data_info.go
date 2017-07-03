@@ -19,6 +19,8 @@ type DataInfoStats struct {
 	PrevYear      float64 `json:"prev_year_average"`
 }
 
+type DataInfoStatsList []DataInfoStats
+
 type SensorVidgetData struct {
 	Type int 	`json:"type"`
 	Name string `json:"name"`

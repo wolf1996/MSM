@@ -11,6 +11,7 @@ import (
 	"github.com/wolf1996/MSM/server/logsystem"
 	"net/http"
 	"strconv"
+	"github.com/wolf1996/MSM/server/application/view/data"
 )
 
 func init() {
@@ -99,6 +100,7 @@ func getControllerView(w http.ResponseWriter, r *http.Request) {
 		view.WriteMessage(&w, view.ErrorMsg{"Database Error"}, 2)
 		return
 	}
+
 	var month, year, prevMonth float64
 	for _, i := range sensors {
 		stats, errCd := getSensorStats(id, i.Id)
