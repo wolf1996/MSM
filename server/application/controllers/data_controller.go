@@ -114,9 +114,20 @@ func getSensorStatsData(w http.ResponseWriter, r *http.Request) {
 	accural := float32(sensorInfo.Tax * stats.CurrentMonth)
 	overpay := float32(10.0)
 	rl := float32(accural - overpay)
-	info := data.SensorVidgetData{sensorInfo.Type, sensorInfo.Name,
-	sensorInfo.Status, accural, overpay, rl, stats}
-	view.WriteMessage(&w, info, 0)
+	info := compileSensorVidgetData(sensorInfo, accural, overpay,rl,stats)
+	view.WriteMessage(&w, *info, 0)
+}
+
+func compileSensorVidgetData(model sensor_model.SensorTaxedModel,
+						accural, overpay, rl float32, stats data.DataInfoStats) (result *data.SensorVidgetData){
+	result = &data.SensorVidgetData{model.Type,
+				model.Name,
+				model.Status,
+				accural,
+				overpay,
+				rl,
+				stats}
+	return
 }
 
 func getSensorData(w http.ResponseWriter, r *http.Request) {
