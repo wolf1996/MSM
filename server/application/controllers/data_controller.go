@@ -192,8 +192,16 @@ func getSensorData(w http.ResponseWriter, r *http.Request) {
 	}
 	var dataInfoList data.DataInfoList
 	for _, v := range dataLst {
-		inf := data.DataInfo{v.SensorId, v.Date, v.Value, v.Hash}
-		dataInfoList = append(dataInfoList, inf)
+		inf := compileView(v)
+		dataInfoList = append(dataInfoList, *inf)
 	}
 	view.WriteMessage(&w, dataInfoList, 0)
+}
+
+func compileView(model data_model.DataModel) (result *data.DataInfo) {
+	result = &data.DataInfo{&model.SensorId,
+							&model.Date,
+							&model.Value,
+							&model.Hash}
+	return
 }
