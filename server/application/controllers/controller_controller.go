@@ -26,6 +26,27 @@ func testController(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Welcome!")
 }
 
+func compileControllerInfo(model *controller_model.ControllerModel) *controller.ControllerInfo{
+	var activationDate *string
+	var deactivationDate *string
+	if model.ActivationDate.Valid{
+		activationDate = &model.ActivationDate.String
+	}
+	if model.DeactivationDate.Valid{
+		deactivationDate = &model.DeactivationDate.String
+	}
+	return &controller.ControllerInfo{&model.Id,
+							&model.Name,
+							&model.UserId,
+							&model.Adres,
+							activationDate,
+							&model.Status,
+							&model.Mac,
+							deactivationDate,
+							&model.ControllerType,
+	}
+}
+
 func getUserController(w http.ResponseWriter, r *http.Request) {
 	sess, err := session_manager.GetSession(r, "user_session")
 	if err != nil {
@@ -52,10 +73,8 @@ func getUserController(w http.ResponseWriter, r *http.Request) {
 	}
 	var inf []controller.ControllerInfo
 	for _, i := range md {
-		buf := controller.ControllerInfo{i.Id, i.Name, i.UserId, i.Adres,
-			i.ActivationDate.String, i.Status, i.Mac, i.DeactivationDate.String,
-			i.ControllerType}
-		inf = append(inf, buf)
+		buf := compileControllerInfo(&i)
+		inf = append(inf, *buf)
 	}
 	view.WriteMessage(&w, inf, 0)
 }
