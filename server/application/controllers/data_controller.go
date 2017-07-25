@@ -29,9 +29,6 @@ func getSensorStats(id int64, sensorId int64) (data.DataInfoStats, models.ErrorM
 	strEnd := firstNextDay.Format("2006-01-02")
 	sumPerMonth, errDb := data_model.GetSum(id, sensorId, strBeg, strEnd)
 	if errDb != nil {
-		//logsystem.Error.Printf("Database Error %s", errDb)
-		//w.WriteHeader(http.StatusInternalServerError)
-		//view.WriteMessage(&w,view.ErrorMsg{"Database Error"}, 2)
 		return data.DataInfoStats{}, models.ErrorModelImpl{errDb.Error(), 1}
 	}
 	firstDay = firstDay.AddDate(-1, 0, 0)
@@ -40,9 +37,6 @@ func getSensorStats(id int64, sensorId int64) (data.DataInfoStats, models.ErrorM
 	strEnd = firstNextDay.Format("2006-01-02")
 	sumPerPrevMonth, errDb := data_model.GetSum(id, sensorId, strBeg, strEnd)
 	if errDb != nil {
-		//logsystem.Error.Printf("Database Error %s", errDb)
-		//w.WriteHeader(http.StatusInternalServerError)
-		//view.WriteMessage(&w,view.ErrorMsg{"Database Error"}, 2)
 		return data.DataInfoStats{}, models.ErrorModelImpl{errDb.Error(), 1}
 	}
 	currYear := time.Date(nowtime.Year(), 1, 1, 0, 0, 0, 0, nowtime.Location())
@@ -51,9 +45,6 @@ func getSensorStats(id int64, sensorId int64) (data.DataInfoStats, models.ErrorM
 	strEnd = currYear.Format("2006-01-02")
 	yearAverPerMonth, errDb := data_model.GetAveragePerMonth(id, sensorId, strBeg, strEnd)
 	if errDb != nil {
-		//logsystem.Error.Printf("Database Error %s", errDb)
-		//w.WriteHeader(http.StatusInternalServerError)
-		//view.WriteMessage(&w,view.ErrorMsg{"Database Error"}, 2)
 		return data.DataInfoStats{}, models.ErrorModelImpl{errDb.Error(), 1}
 	}
 	stats := data.DataInfoStats{sumPerMonth.Delta.Float64, sumPerPrevMonth.Delta.Float64,
