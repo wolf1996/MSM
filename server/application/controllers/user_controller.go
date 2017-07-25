@@ -78,6 +78,64 @@ func signIn(w http.ResponseWriter, r *http.Request) {
 	view.WriteMessage(&w, view.ErrorMsg{"Ok"}, 0)
 }
 
+func compileUserInfo(info *user_model.UserInfoModel) *user.UserInfo {
+	var familyName, name, secondName, dateReceiving, issuedBy *string
+	var divisionNumber, registrationAddres, mailingAddres, birthday *string
+	var sex *bool
+	var homePhone, mobilePhone, citizenShip *string
+	if info.FamilyName.Valid {
+		familyName = &info.FamilyName.String
+	}
+	if info.Name.Valid {
+		name = &info.Name.String
+	}
+	if info.SecondName.Valid {
+		secondName = &info.SecondName.String
+	}
+	if info.IssuedBy.Valid {
+		issuedBy = &info.IssuedBy.String
+	}
+	if info.DivisionNumber.Valid {
+		divisionNumber = &info.DivisionNumber.String
+	}
+	if info.RegistrationAddres.Valid {
+		registrationAddres = &info.RegistrationAddres.String
+	}
+	if info.MailingAddres.Valid {
+		mailingAddres = &info.MailingAddres.String
+	}
+	if info.BirthDay.Valid {
+		birthday = &info.BirthDay.String
+	}
+	if info.Sex.Valid {
+		sex = &info.Sex.Bool
+	}
+	if info.HomePhone.Valid {
+		homePhone = &info.HomePhone.String
+	}
+	if info.MobilePhone.Valid {
+		mobilePhone = &info.MobilePhone.String
+	}
+	if info.CitizenShip.Valid {
+		citizenShip = &info.CitizenShip.String
+	}
+	return &user.UserInfo{familyName,
+		                  name,
+		                  secondName,
+		                  dateReceiving,
+		                  issuedBy,
+		                  divisionNumber,
+				          registrationAddres,
+		                  mailingAddres,
+		                  birthday,
+		                  sex,
+		                  homePhone,
+		                  mobilePhone,
+		                  citizenShip,
+		                  &info.EMail,
+	}
+}
+
 func getUserInfo(w http.ResponseWriter, r *http.Request) {
 	sess, err := session_manager.GetSession(r, "user_session")
 	if err != nil {
@@ -102,10 +160,6 @@ func getUserInfo(w http.ResponseWriter, r *http.Request) {
 		view.WriteMessage(&w, view.ErrorMsg{"Database Error"}, 2)
 		return
 	}
-	inf := user.UserInfo{md.FamilyName.String, md.Name.String, md.SecondName.String,
-		md.DateReceiving.String, md.IssuedBy.String, md.DivisionNumber.String,
-		md.RegistrationAddres.String, md.MailingAddres.String, md.BirthDay.String,
-		md.Sex.Bool, md.HomePhone.String, md.MobilePhone.String, md.CitizenShip.String,
-		md.EMail}
+	inf := compileUserInfo(&md)
 	view.WriteMessage(&w, inf, 0)
 }
