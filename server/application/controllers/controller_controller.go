@@ -79,6 +79,14 @@ func getUserController(w http.ResponseWriter, r *http.Request) {
 	view.WriteMessage(&w, inf, 0)
 }
 
+func compileControllerStats(id *int64, month, prevMonth, prevYear *float64) *controller.ControllerStats{
+	return &controller.ControllerStats{id,
+		                              month,
+		                              prevMonth,
+		                              prevYear}
+}
+
+
 func getControllerView(w http.ResponseWriter, r *http.Request) {
 	sess, err := session_manager.GetSession(r, "user_session")
 	if err != nil {
@@ -136,6 +144,6 @@ func getControllerView(w http.ResponseWriter, r *http.Request) {
 		year += i.Tax * stats.PrevYear
 		prevMonth += i.Tax * stats.PrevYearMonth
 	}
-	vw := controller.ControllerStats{controllerId, month, prevMonth, year}
+	vw := compileControllerStats(&controllerId, &month, &prevMonth, &year)
 	view.WriteMessage(&w, vw, 0)
 }
