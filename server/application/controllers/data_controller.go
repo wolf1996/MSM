@@ -21,6 +21,20 @@ func init() {
 	AddRout(rout)
 }
 
+func compileDataInfoStats(month, prev *data_model.DeltaData, year *data_model.AveragePerMonth) *data.DataInfoStats{
+	var monthReal, prevReal, yearReal *float64
+	if month.Delta.Valid {
+		monthReal = &month.Delta.Float64
+	}
+	if prev.Delta.Valid {
+		prevReal = &prev.Delta.Float64
+	}
+	if year.Average.Valid {
+		yearReal = &year.Average.Float64
+	}
+	return &data.DataInfoStats{monthReal, prevReal, yearReal}
+}
+
 func getSensorStats(id int64, sensorId int64) (data.DataInfoStats, models.ErrorModel) {
 	nowtime := time.Now()
 	firstDay := time.Date(nowtime.Year(), nowtime.Month(), 1, 0, 0, 0, 0, nowtime.Location())
@@ -47,9 +61,8 @@ func getSensorStats(id int64, sensorId int64) (data.DataInfoStats, models.ErrorM
 	if errDb != nil {
 		return data.DataInfoStats{}, models.ErrorModelImpl{errDb.Error(), 1}
 	}
-	stats := data.DataInfoStats{sumPerMonth.Delta.Float64, sumPerPrevMonth.Delta.Float64,
-		yearAverPerMonth.Average.Float64}
-	return stats, nil
+	stats := compileDataInfoStats(&sumPerMonth, &sumPerPrevMonth, &yearAverPerMonth)
+	return *stats, nil
 }
 
 func getSensorStatsData(w http.ResponseWriter, r *http.Request) {
@@ -102,7 +115,12 @@ func getSensorStatsData(w http.ResponseWriter, r *http.Request) {
 		view.WriteMessage(&w, view.ErrorMsg{"Invalid sensor"}, 3)
 		return
 	}
-	accural := float32(sensorInfo.Tax * stats.CurrentMonth)
+	var accural float32
+	if stats.CurrentMonth != nil{
+		accural = float32((sensorInfo.Tax) * (*stats.CurrentMonth))
+	} else {
+		accural = 0
+	}
 	overpay := float32(10.0)
 	rl := float32(accural - overpay)
 	info := compileSensorVidgetData(sensorInfo, accural, overpay,rl,stats)
@@ -110,15 +128,15 @@ func getSensorStatsData(w http.ResponseWriter, r *http.Request) {
 }
 
 func compileSensorVidgetData(model sensor_model.SensorTaxedModel,
-						accural, overpay, rl float32, stats data.DataInfoStats) (result *data.SensorVidgetData){
-	result = &data.SensorVidgetData{model.Type,
-				model.Name,
-				model.Status,
-				accural,
-				overpay,
-				rl,
-				stats}
-	return
+						accural, overpay, rl float32, stats data.DataInfoStats) ( *data.SensorVidgetData){
+	result := &data.SensorVidgetData{&model.Type,
+				&model.Name,
+				&model.Status,
+				&accural,
+				&overpay,
+				&rl,
+				&stats}
+	return result
 }
 
 func getSensorData(w http.ResponseWriter, r *http.Request) {

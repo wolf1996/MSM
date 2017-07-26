@@ -140,9 +140,15 @@ func getControllerView(w http.ResponseWriter, r *http.Request) {
 
 			}
 		}
-		month += i.Tax * stats.CurrentMonth
-		year += i.Tax * stats.PrevYear
-		prevMonth += i.Tax * stats.PrevYearMonth
+		if stats.CurrentMonth != nil {
+			month += i.Tax * *stats.CurrentMonth
+		}
+		if stats.PrevYear != nil {
+			year += i.Tax * *stats.PrevYear
+		}
+		if stats.PrevYearMonth != nil {
+			prevMonth += i.Tax * *stats.PrevYearMonth
+		}
 	}
 	vw := compileControllerStats(&controllerId, &month, &prevMonth, &year)
 	view.WriteMessage(&w, vw, 0)
