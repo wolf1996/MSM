@@ -59,7 +59,7 @@ func signIn(w http.ResponseWriter, r *http.Request) {
 	}
 	var id int64
 	var loggerr models.ErrorModel
-	if id, loggerr = user_model.LogInUser(logIn.EMail, logIn.Pass); loggerr != nil {
+	if id, loggerr = user_model.LogInUser(*logIn.EMail, *logIn.Pass); loggerr != nil {
 		logsystem.Error.Printf("Login failed %s", loggerr)
 		w.WriteHeader(http.StatusForbidden)
 		view.WriteMessage(&w, view.ErrorMsg{"Login Failed"}, 5)

@@ -16,6 +16,29 @@ func init() {
 	AddRout(rout)
 }
 
+func compileSensorInfo(v *sensor_model.SensorModel) *sensor.SensorInfo {
+	var deactivationDate,activationDate *string
+	var controllerId *int64
+	if v.ActivationDate.Valid{
+		activationDate = &v.ActivationDate.String
+	}
+	if v.DeactivationDate.Valid{
+		deactivationDate = &v.DeactivationDate.String
+	}
+	if v.ControllerId.Valid {
+		controllerId = &v.ControllerId.Int64
+	}
+	return &sensor.SensorInfo{&v.Id,
+					  &v.Name,
+		              controllerId,
+		              activationDate,
+		              &v.Status,
+					  deactivationDate,
+		              &v.SensorType,
+					  &v.Company,
+	}
+}
+
 func getControllerSensor(w http.ResponseWriter, r *http.Request) {
 	sess, err := session_manager.GetSession(r, "user_session")
 	if err != nil {
@@ -57,8 +80,7 @@ func getControllerSensor(w http.ResponseWriter, r *http.Request) {
 	}
 	var sensorsInfo sensor.SensorsInfo
 	for _, v := range sensors {
-		inf := sensor.SensorInfo{v.Id, v.Name, v.ControllerId.Int64, v.ActivationDate.String, v.Status,
-			v.DeactivationDate.String, v.SensorType, v.Company}
+		inf := *compileSensorInfo(&v)
 		sensorsInfo = append(sensorsInfo, inf)
 	}
 	view.WriteMessage(&w, sensorsInfo, 0)
