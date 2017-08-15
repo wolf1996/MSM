@@ -17,7 +17,8 @@ type config struct {
 
 func main() {
 	logsystem.Init(ioutil.Discard, os.Stdout, os.Stdout, os.Stderr)
-	file, err := os.Open("/home/lieroz/go/src/MSM/server/config.json")
+	pwd, _ := os.Getwd()
+	file, err := os.Open(pwd + "/server/config.json")
 	if err != nil {
 		logsystem.Error.Printf("%s , %s", "config file open error", err)
 		return
