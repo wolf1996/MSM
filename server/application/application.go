@@ -8,6 +8,7 @@ import (
 
 func AppStart(port, dbLogin, dbPass, dbURL string) {
 	router := controllers.GetRouters()
-	models.Init(dbLogin, dbPass, dbURL)
+	models.PostgresInit(dbLogin, dbPass, dbURL)
+	models.MongoInit()
 	http.ListenAndServe(port, router)
 }

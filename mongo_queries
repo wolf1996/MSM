@@ -1,0 +1,41 @@
+db.getCollection('sensor_data').find({sensor_id: 1, date:{$lt: ISODate('2017-08-01 00:00:00.000Z')}}).limit(10)
+
+db.getCollection('sensor_data').aggregate(
+    [
+    { $match : {
+            date : {$lt: ISODate('2017-08-01 00:00:00.000Z'), $gt: ISODate('2017-05-01 00:00:00.000Z')}
+        }
+    },
+    { $group :{
+        "_id": { $month : "$date"},
+         "minval": { $min: "$value" },
+         "maxval": { $max: "$value" }
+      }
+    },
+    { $project :{
+            "val": {$subtract:["$maxval","$minval"]}
+        }
+    }
+
+    ]
+)
+
+db.getCollection('sensor_data').aggregate(
+    [
+    { $match : {
+            date : {$lt: ISODate('2017-08-01 00:00:00.000Z'), $gt: ISODate('2017-06-30 00:00:00.000Z')}
+        }
+    },
+    { $group :{
+        "_id": null,
+         "minval": { $min: "$value" },
+         "maxval": { $max: "$value" }
+      }
+    },
+    { $project :{
+            "val": {$subtract:["$maxval","$minval"]}
+        }
+    }
+
+    ]
+)

@@ -3,6 +3,7 @@ package data_model
 import (
 	"fmt"
 	"github.com/wolf1996/MSM/server/application/models"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type DataModel Table
