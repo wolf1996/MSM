@@ -2,8 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/wolf1996/MSM/server/application"
-	"github.com/wolf1996/MSM/server/logsystem"
+	"MSM/server/application"
+	"MSM/server/logsystem"
 	"io/ioutil"
 	"os"
 )
@@ -17,7 +17,8 @@ type config struct {
 
 func main() {
 	logsystem.Init(ioutil.Discard, os.Stdout, os.Stdout, os.Stderr)
-	file, err := os.Open("//home/ksg/disk_d/Projects/MahnoInc/M4M/src/github.com/wolf1996/MSM/server/config.json")
+	pwd, _ := os.Getwd()
+	file, err := os.Open(pwd + "/server/config.json")
 	if err != nil {
 		logsystem.Error.Printf("%s , %s", "config file open error", err)
 		return

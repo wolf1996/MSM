@@ -1,8 +1,8 @@
 package application
 
 import (
-	"github.com/wolf1996/MSM/server/application/controllers"
-	"github.com/wolf1996/MSM/server/application/models"
+	"MSM/server/application/controllers"
+	"MSM/server/application/models"
 	"net/http"
 )
 

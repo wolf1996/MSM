@@ -2,7 +2,7 @@ package data_model
 
 import (
 	"fmt"
-	"github.com/wolf1996/MSM/server/application/models"
+	"MSM/server/application/models"
 )
 
 type DataModel Table

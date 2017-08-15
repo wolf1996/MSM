@@ -2,7 +2,7 @@ package controller_model
 
 import (
 	"fmt"
-	"github.com/wolf1996/MSM/server/application/models"
+	"MSM/server/application/models"
 )
 
 type ControllerModel Table
