@@ -3,15 +3,16 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/wolf1996/MSM/server/application/models"
-	"github.com/wolf1996/MSM/server/application/models/user_model"
-	"github.com/wolf1996/MSM/server/application/session_manager"
-	"github.com/wolf1996/MSM/server/application/view"
-	"github.com/wolf1996/MSM/server/application/view/user"
-	"github.com/wolf1996/MSM/server/logsystem"
+	"MSM/server/application/models"
+	"MSM/server/application/models/user_model"
+	"MSM/server/application/session_manager"
+	"MSM/server/application/view"
+	"MSM/server/application/view/user"
+	"MSM/server/logsystem"
 	"io"
 	"io/ioutil"
 	"net/http"
+	"MSM/server/application/error_codes"
 )
 
 func init() {
@@ -33,28 +34,28 @@ func signIn(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logsystem.Error.Printf("Post Json loading in signIn %s", err)
 		w.WriteHeader(http.StatusBadRequest)
-		view.WriteMessage(&w, view.ErrorMsg{"Body Read"}, 1)
+		view.WriteMessage(&w, view.ErrorMsg{"Body Read"}, error_codes.INVALID_BODY_READ)
 		return
 
 	}
 	if err := r.Body.Close(); err != nil {
 		logsystem.Error.Printf("Body Close %s", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		view.WriteMessage(&w, view.ErrorMsg{"Body Close Error"}, 2)
+		view.WriteMessage(&w, view.ErrorMsg{"Body Close Error"}, error_codes.INVALID_BODY_CLOSE)
 		return
 	}
 	logIn := user.LoginForm{}
 	if err := json.Unmarshal(body, &logIn); err != nil {
 		logsystem.Error.Printf("Unmarshal error %s", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		view.WriteMessage(&w, view.ErrorMsg{"Unmarshal error"}, 3)
+		view.WriteMessage(&w, view.ErrorMsg{"Unmarshal error"}, error_codes.UNMARSHAL_ERROR)
 		return
 	}
 	isValid := logIn.Validate()
 	if !isValid {
 		logsystem.Error.Printf("Invalid")
 		w.WriteHeader(http.StatusBadRequest)
-		view.WriteMessage(&w, view.ErrorMsg{"Validation Failed"}, 4)
+		view.WriteMessage(&w, view.ErrorMsg{"Validation Failed"}, error_codes.VALIDATION_FAILED)
 		return
 	}
 	var id int64
@@ -62,20 +63,20 @@ func signIn(w http.ResponseWriter, r *http.Request) {
 	if id, loggerr = user_model.LogInUser(*logIn.EMail, *logIn.Pass); loggerr != nil {
 		logsystem.Error.Printf("Login failed %s", loggerr)
 		w.WriteHeader(http.StatusForbidden)
-		view.WriteMessage(&w, view.ErrorMsg{"Login Failed"}, 5)
+		view.WriteMessage(&w, view.ErrorMsg{"Login Failed"}, error_codes.LOGIN_FAILED)
 		return
 	}
 	sess, err := session_manager.GetSession(r, "user_session")
 	if err != nil {
 		logsystem.Error.Printf("Get session error %s", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		view.WriteMessage(&w, view.ErrorMsg{"Session error"}, 6)
+		view.WriteMessage(&w, view.ErrorMsg{"Session error"}, error_codes.SESSION_ERROR)
 		sess.Save(r, w)
 		return
 	}
 	sess.Values["user"] = id
 	sess.Save(r, w)
-	view.WriteMessage(&w, view.ErrorMsg{"Ok"}, 0)
+	view.WriteMessage(&w, view.ErrorMsg{"Ok"}, error_codes.OK)
 }
 
 func compileUserInfo(info *user_model.UserInfoModel) *user.UserInfo {
@@ -140,7 +141,7 @@ func getUserInfo(w http.ResponseWriter, r *http.Request) {
 	sess, err := session_manager.GetSession(r, "user_session")
 	if err != nil {
 		logsystem.Error.Printf("Get session error %s", err)
-		view.WriteMessage(&w, nil, 2)
+		view.WriteMessage(&w, "session error", error_codes.SESSION_ERROR)
 		sess, _ = session_manager.NewSession(r, "user_session")
 		w.WriteHeader(http.StatusForbidden)
 		sess.Save(r, w)
@@ -150,16 +151,16 @@ func getUserInfo(w http.ResponseWriter, r *http.Request) {
 	if id == nil {
 		logsystem.Error.Printf("LogIn first")
 		w.WriteHeader(http.StatusForbidden)
-		view.WriteMessage(&w, view.ErrorMsg{"Login first"}, 1)
+		view.WriteMessage(&w, view.ErrorMsg{"Login first"}, error_codes.NOT_LOGGED)
 		return
 	}
 	md, errDb := user_model.UserInfoQuery(id.(int64))
 	if errDb != nil {
 		logsystem.Error.Printf("Database Error %s", errDb)
 		w.WriteHeader(http.StatusInternalServerError)
-		view.WriteMessage(&w, view.ErrorMsg{"Database Error"}, 2)
+		view.WriteMessage(&w, view.ErrorMsg{"Database Error"}, error_codes.DATABASE_ERROR)
 		return
 	}
 	inf := compileUserInfo(&md)
-	view.WriteMessage(&w, inf, 0)
+	view.WriteMessage(&w, inf, error_codes.OK)
 }

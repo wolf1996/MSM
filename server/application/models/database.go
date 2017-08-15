@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
-	"github.com/wolf1996/MSM/server/logsystem"
+	"MSM/server/logsystem"
 )
 
 var Database sql.DB

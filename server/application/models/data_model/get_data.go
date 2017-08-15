@@ -2,7 +2,8 @@ package data_model
 
 import (
 	"fmt"
-	"github.com/wolf1996/MSM/server/application/models"
+	"MSM/server/application/models"
+	"MSM/server/application/error_codes"
 )
 
 type DataModel Table
@@ -18,14 +19,14 @@ func GetData(userId, sensorId int64, date string, limit int64) (DataModels, mode
 		" WHERE sensor_id = $1 AND user_id = $2 AND date < $3 "+
 		" LIMIT $4", sensorId, userId, date, limit)
 	if err != nil {
-		return infoSlice, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: 2}
+		return infoSlice, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: error_codes.DATABASE_ERROR}
 	}
 	defer qr.Close()
 	var info DataModel
 	for qr.Next() {
 		err = qr.Scan(&info.SensorId, &info.Date, &info.Value, &info.Hash)
 		if err != nil {
-			return infoSlice, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: 2}
+			return infoSlice, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: error_codes.DATABASE_ERROR}
 		}
 		infoSlice = append(infoSlice, info)
 	}
