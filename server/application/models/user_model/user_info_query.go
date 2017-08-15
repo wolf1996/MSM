@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"MSM/server/application/models"
+	"MSM/server/application/error_codes"
 )
 
 type UserInfoModel struct {
@@ -48,7 +49,7 @@ func UserInfoQuery(id int64) (UserInfoModel, models.ErrorModel) {
 			"registration_addres ,mailing_addres ,home_phone ,mobile_phone ,citizenship ,e_mail "+
 			"FROM USERS WHERE id = $1 ;", id)
 	if err != nil {
-		return UserInfoModel{}, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: 2}
+		return UserInfoModel{}, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: error_codes.DATABASE_ERROR}
 	}
 	defer qr.Close()
 	var info UserInfoModel
@@ -57,7 +58,7 @@ func UserInfoQuery(id int64) (UserInfoModel, models.ErrorModel) {
 		&info.DateReceiving, &info.RegistrationAddres, &info.MailingAddres, &info.HomePhone, &info.MobilePhone,
 		&info.CitizenShip, &info.EMail)
 	if err != nil {
-		return UserInfoModel{}, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: 2}
+		return UserInfoModel{}, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: error_codes.DATABASE_ERROR}
 	}
 	return info, nil
 }

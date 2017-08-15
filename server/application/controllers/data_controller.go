@@ -8,6 +8,7 @@ import (
 	"MSM/server/application/view"
 	"MSM/server/application/view/data"
 	"MSM/server/logsystem"
+	"MSM/server/application/error_codes"
 	"net/http"
 	"strconv"
 	"time"
@@ -43,7 +44,7 @@ func getSensorStats(id int64, sensorId int64) (data.DataInfoStats, models.ErrorM
 	strEnd := firstNextDay.Format("2006-01-02")
 	sumPerMonth, errDb := data_model.GetSum(id, sensorId, strBeg, strEnd)
 	if errDb != nil {
-		return data.DataInfoStats{}, models.ErrorModelImpl{errDb.Error(), 1}
+		return data.DataInfoStats{}, models.ErrorModelImpl{errDb.Error(), error_codes.DATABASE_ERROR}
 	}
 	firstDay = firstDay.AddDate(-1, 0, 0)
 	firstNextDay = firstDay.AddDate(0, 1, 0)
@@ -51,7 +52,7 @@ func getSensorStats(id int64, sensorId int64) (data.DataInfoStats, models.ErrorM
 	strEnd = firstNextDay.Format("2006-01-02")
 	sumPerPrevMonth, errDb := data_model.GetSum(id, sensorId, strBeg, strEnd)
 	if errDb != nil {
-		return data.DataInfoStats{}, models.ErrorModelImpl{errDb.Error(), 1}
+		return data.DataInfoStats{}, models.ErrorModelImpl{errDb.Error(), error_codes.DATABASE_ERROR}
 	}
 	currYear := time.Date(nowtime.Year(), 1, 1, 0, 0, 0, 0, nowtime.Location())
 	firstPrevYear := currYear.AddDate(-1, 0, 0)
@@ -59,7 +60,7 @@ func getSensorStats(id int64, sensorId int64) (data.DataInfoStats, models.ErrorM
 	strEnd = currYear.Format("2006-01-02")
 	yearAverPerMonth, errDb := data_model.GetAveragePerMonth(id, sensorId, strBeg, strEnd)
 	if errDb != nil {
-		return data.DataInfoStats{}, models.ErrorModelImpl{errDb.Error(), 1}
+		return data.DataInfoStats{}, models.ErrorModelImpl{errDb.Error(), error_codes.DATABASE_ERROR}
 	}
 	stats := compileDataInfoStats(&sumPerMonth, &sumPerPrevMonth, &yearAverPerMonth)
 	return *stats, nil
@@ -69,7 +70,7 @@ func getSensorStatsData(w http.ResponseWriter, r *http.Request) {
 	sess, err := session_manager.GetSession(r, "user_session")
 	if err != nil {
 		logsystem.Error.Printf("Get session error %s", err)
-		view.WriteMessage(&w, view.ErrorMsg{"Session Error"}, 2)
+		view.WriteMessage(&w, view.ErrorMsg{"Session Error"}, error_codes.SESSION_ERROR)
 		w.WriteHeader(http.StatusForbidden)
 		sess, _ = session_manager.NewSession(r, "user_session")
 		sess.Save(r, w)
@@ -79,21 +80,21 @@ func getSensorStatsData(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		logsystem.Error.Printf("LogIn first")
 		w.WriteHeader(http.StatusForbidden)
-		view.WriteMessage(&w, view.ErrorMsg{"Login first"}, 1)
+		view.WriteMessage(&w, view.ErrorMsg{"Login first"}, error_codes.NOT_LOGGED)
 		return
 	}
 	vals := mux.Vars(r)
 	if vals == nil {
 		logsystem.Error.Printf("Can't parse argument %s", err)
 		w.WriteHeader(http.StatusBadRequest)
-		view.WriteMessage(&w, view.ErrorMsg{"Can't parse argument"}, 3)
+		view.WriteMessage(&w, view.ErrorMsg{"Can't parse argument"}, error_codes.INVALID_ARGUMENT)
 		return
 	}
 	cId := vals["id"]
 	sensorId, err := strconv.ParseInt(cId, 10, 64)
 	if err != nil {
 		logsystem.Error.Printf("Can't parse argument %s", err)
-		view.WriteMessage(&w, view.ErrorMsg{"Can't parse argument"}, 3)
+		view.WriteMessage(&w, view.ErrorMsg{"Can't parse argument"}, error_codes.INVALID_ARGUMENT)
 		return
 	}
 
@@ -103,7 +104,7 @@ func getSensorStatsData(w http.ResponseWriter, r *http.Request) {
 		case errCd.Id() == 1:
 			logsystem.Error.Printf("Database Error %s", errCd.Error())
 			w.WriteHeader(http.StatusInternalServerError)
-			view.WriteMessage(&w, view.ErrorMsg{"Database Error"}, 2)
+			view.WriteMessage(&w, view.ErrorMsg{"Database Error"}, error_codes.DATABASE_ERROR)
 			return
 
 		}
@@ -112,7 +113,7 @@ func getSensorStatsData(w http.ResponseWriter, r *http.Request) {
 	if errCd != nil {
 		logsystem.Error.Printf("Invalid sensor")
 		w.WriteHeader(http.StatusInternalServerError)
-		view.WriteMessage(&w, view.ErrorMsg{"Invalid sensor"}, 3)
+		view.WriteMessage(&w, view.ErrorMsg{"Invalid sensor"}, error_codes.DATABASE_INVALID_SENSOR)
 		return
 	}
 	var accural float32
@@ -124,7 +125,7 @@ func getSensorStatsData(w http.ResponseWriter, r *http.Request) {
 	overpay := float32(10.0)
 	rl := float32(accural - overpay)
 	info := compileSensorVidgetData(sensorInfo, accural, overpay,rl,stats)
-	view.WriteMessage(&w, *info, 0)
+	view.WriteMessage(&w, *info, error_codes.OK)
 }
 
 func compileSensorVidgetData(model sensor_model.SensorTaxedModel,
@@ -143,7 +144,7 @@ func getSensorData(w http.ResponseWriter, r *http.Request) {
 	sess, err := session_manager.GetSession(r, "user_session")
 	if err != nil {
 		logsystem.Error.Printf("Get session error %s", err)
-		view.WriteMessage(&w, view.ErrorMsg{"Session Error"}, 2)
+		view.WriteMessage(&w, view.ErrorMsg{"Session Error"}, error_codes.SESSION_ERROR)
 		w.WriteHeader(http.StatusForbidden)
 		sess, _ = session_manager.NewSession(r, "user_session")
 		sess.Save(r, w)
@@ -153,21 +154,21 @@ func getSensorData(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		logsystem.Error.Printf("LogIn first")
 		w.WriteHeader(http.StatusForbidden)
-		view.WriteMessage(&w, view.ErrorMsg{"Login first"}, 1)
+		view.WriteMessage(&w, view.ErrorMsg{"Login first"}, error_codes.NOT_LOGGED)
 		return
 	}
 	vals := mux.Vars(r)
 	if vals == nil {
 		logsystem.Error.Printf("Can't parse argument %s", err)
 		w.WriteHeader(http.StatusBadRequest)
-		view.WriteMessage(&w, view.ErrorMsg{"Can't parse argument"}, 3)
+		view.WriteMessage(&w, view.ErrorMsg{"Can't parse argument"}, error_codes.INVALID_ARGUMENT)
 		return
 	}
 	cId := vals["id"]
 	sensorId, err := strconv.ParseInt(cId, 10, 64)
 	if err != nil {
 		logsystem.Error.Printf("Can't parse argument %s", err)
-		view.WriteMessage(&w, view.ErrorMsg{"Can't parse argument"}, 3)
+		view.WriteMessage(&w, view.ErrorMsg{"Can't parse argument"}, error_codes.INVALID_ARGUMENT)
 		return
 	}
 	query := r.URL.Query()
@@ -175,7 +176,7 @@ func getSensorData(w http.ResponseWriter, r *http.Request) {
 	if len(limitSt) > 1 {
 		logsystem.Error.Printf("invalid query")
 		w.WriteHeader(http.StatusBadRequest)
-		view.WriteMessage(&w, view.ErrorMsg{"invalid query"}, 4)
+		view.WriteMessage(&w, view.ErrorMsg{"invalid query"}, error_codes.INVALID_QUERY)
 		return
 	}
 	if len(limitSt) == 0 {
@@ -185,7 +186,7 @@ func getSensorData(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logsystem.Error.Printf("Can't parse argument %s", err)
 		w.WriteHeader(http.StatusBadRequest)
-		view.WriteMessage(&w, view.ErrorMsg{"Can't parse argument"}, 3)
+		view.WriteMessage(&w, view.ErrorMsg{"Can't parse argument"}, error_codes.INVALID_ARGUMENT)
 		return
 	}
 
@@ -193,7 +194,7 @@ func getSensorData(w http.ResponseWriter, r *http.Request) {
 	if len(dateSt) > 1 {
 		logsystem.Error.Printf("invalid query")
 		w.WriteHeader(http.StatusBadRequest)
-		view.WriteMessage(&w, view.ErrorMsg{"invalid query"}, 4)
+		view.WriteMessage(&w, view.ErrorMsg{"invalid query"}, error_codes.INVALID_QUERY)
 		return
 	}
 
@@ -207,7 +208,7 @@ func getSensorData(w http.ResponseWriter, r *http.Request) {
 	if errDb != nil {
 		logsystem.Error.Printf("Database Error %s", errDb)
 		w.WriteHeader(http.StatusInternalServerError)
-		view.WriteMessage(&w, view.ErrorMsg{"Database Error"}, 2)
+		view.WriteMessage(&w, view.ErrorMsg{"Database Error"}, error_codes.DATABASE_ERROR)
 		return
 	}
 	var dataInfoList data.DataInfoList
@@ -215,7 +216,7 @@ func getSensorData(w http.ResponseWriter, r *http.Request) {
 		inf := compileView(v)
 		dataInfoList = append(dataInfoList, *inf)
 	}
-	view.WriteMessage(&w, dataInfoList, 0)
+	view.WriteMessage(&w, dataInfoList, error_codes.OK)
 }
 
 func compileView(model data_model.DataModel) (result *data.DataInfo) {

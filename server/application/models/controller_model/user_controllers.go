@@ -3,6 +3,7 @@ package controller_model
 import (
 	"fmt"
 	"MSM/server/application/models"
+	"MSM/server/application/error_codes"
 )
 
 type ControllerModel Table
@@ -15,7 +16,7 @@ func GetUserControllers(id int64) (ControllerModels, models.ErrorModel) {
 		"SELECT * "+
 			"FROM CONTROLLERS WHERE user_id = $1 ;", id)
 	if err != nil {
-		return infoSlice, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: 2}
+		return infoSlice, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: error_codes.DATABASE_ERROR}
 	}
 	defer qr.Close()
 	var info ControllerModel
@@ -23,7 +24,7 @@ func GetUserControllers(id int64) (ControllerModels, models.ErrorModel) {
 		err = qr.Scan(&info.Id, &info.Name, &info.UserId, &info.Adres, &info.ActivationDate,
 			&info.Status, &info.Mac, &info.DeactivationDate, &info.ControllerType)
 		if err != nil {
-			return infoSlice, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: 2}
+			return infoSlice, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: error_codes.DATABASE_ERROR}
 		}
 		infoSlice = append(infoSlice, info)
 	}
