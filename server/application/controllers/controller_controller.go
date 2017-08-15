@@ -3,12 +3,12 @@ package controllers
 import (
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/wolf1996/MSM/server/application/models/controller_model"
-	"github.com/wolf1996/MSM/server/application/models/sensor_model"
-	"github.com/wolf1996/MSM/server/application/session_manager"
-	"github.com/wolf1996/MSM/server/application/view"
-	"github.com/wolf1996/MSM/server/application/view/controller"
-	"github.com/wolf1996/MSM/server/logsystem"
+	"MSM/server/application/models/controller_model"
+	"MSM/server/application/models/sensor_model"
+	"MSM/server/application/session_manager"
+	"MSM/server/application/view"
+	"MSM/server/application/view/controller"
+	"MSM/server/logsystem"
 	"net/http"
 	"strconv"
 )

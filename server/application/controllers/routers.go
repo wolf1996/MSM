@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/wolf1996/MSM/server/logsystem"
+	"MSM/server/logsystem"
 	"net/http"
 )
 

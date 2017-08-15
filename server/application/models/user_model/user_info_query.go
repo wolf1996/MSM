@@ -3,7 +3,7 @@ package user_model
 import (
 	"database/sql"
 	"fmt"
-	"github.com/wolf1996/MSM/server/application/models"
+	"MSM/server/application/models"
 )
 
 type UserInfoModel struct {
