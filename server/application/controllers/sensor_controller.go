@@ -44,7 +44,7 @@ func getControllerSensor(w http.ResponseWriter, r *http.Request) {
 	sess, err := session_manager.GetSession(r, "user_session")
 	if err != nil {
 		logsystem.Error.Printf("Get session error %s", err)
-		view.WriteMessage(&w, view.ErrorMsg{"Session Error"}, error_codes.SESSION_ERRORor)
+		view.WriteMessage(&w, view.ErrorMsg{"Session Error"}, error_codes.SESSION_ERROR)
 		w.WriteHeader(http.StatusForbidden)
 		sess, _ = session_manager.NewSession(r, "user_session")
 		sess.Save(r, w)
