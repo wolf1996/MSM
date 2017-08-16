@@ -9,7 +9,7 @@ import (
 	"github.com/wolf1996/MSM/server/logsystem"
 	"net/http"
 	"strconv"
-	"MSM/server/application/error_codes"
+	"github.com/wolf1996/MSM/server/application/error_codes"
 )
 
 func init() {

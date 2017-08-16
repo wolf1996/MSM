@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"time"
 	"github.com/wolf1996/MSM/server/application/models/sensor_model"
-	"MSM/server/application/error_codes"
+	"github.com/wolf1996/MSM/server/application/error_codes"
 )
 
 func init() {
