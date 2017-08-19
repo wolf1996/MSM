@@ -3,36 +3,36 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/wolf1996/MSM/server/application/error_codes"
 	"github.com/wolf1996/MSM/server/application/models"
 	"github.com/wolf1996/MSM/server/application/models/user_model"
 	"github.com/wolf1996/MSM/server/application/session_manager"
 	"github.com/wolf1996/MSM/server/application/view"
 	"github.com/wolf1996/MSM/server/application/view/user"
+	"github.com/wolf1996/MSM/server/framework"
 	"github.com/wolf1996/MSM/server/logsystem"
 	"io"
 	"io/ioutil"
 	"net/http"
-	"github.com/wolf1996/MSM/server/framework"
-	"github.com/wolf1996/MSM/server/application/error_codes"
 )
 
 func init() {
-	rout := framework.Route{Name:"TestUser",
-							Method: "GET",
-							Pattern: "/user/test",
-							HandlerFunc: test,
+	rout := framework.Route{Name: "TestUser",
+		Method:      "GET",
+		Pattern:     "/user/test",
+		HandlerFunc: test,
 	}
 	framework.AddRout(rout)
-	rout = framework.Route{Name:"SignInUser",
-		                   Method:"POST",
-		                   Pattern: "/user/sign_in",
-		                   HandlerFunc:signIn,
+	rout = framework.Route{Name: "SignInUser",
+		Method:      "POST",
+		Pattern:     "/user/sign_in",
+		HandlerFunc: signIn,
 	}
 	framework.AddRout(rout)
-	rout = framework.Route{Name:"GetUserInfo",
-		                   Method: "GET",
-		                   Pattern:"/user/user_info",
-		                   HandlerFunc:getUserInfo,
+	rout = framework.Route{Name: "GetUserInfo",
+		Method:      "GET",
+		Pattern:     "/user/user_info",
+		HandlerFunc: getUserInfo,
 	}
 	framework.AddRout(rout)
 }
@@ -134,19 +134,19 @@ func compileUserInfo(info *user_model.UserInfoModel) *user.UserInfo {
 		citizenShip = &info.CitizenShip.String
 	}
 	return &user.UserInfo{familyName,
-		                  name,
-		                  secondName,
-		                  dateReceiving,
-		                  issuedBy,
-		                  divisionNumber,
-				          registrationAddres,
-		                  mailingAddres,
-		                  birthday,
-		                  sex,
-		                  homePhone,
-		                  mobilePhone,
-		                  citizenShip,
-		                  &info.EMail,
+		name,
+		secondName,
+		dateReceiving,
+		issuedBy,
+		divisionNumber,
+		registrationAddres,
+		mailingAddres,
+		birthday,
+		sex,
+		homePhone,
+		mobilePhone,
+		citizenShip,
+		&info.EMail,
 	}
 }
 

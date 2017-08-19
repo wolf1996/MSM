@@ -2,46 +2,46 @@ package controllers
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/wolf1996/MSM/server/application/error_codes"
 	"github.com/wolf1996/MSM/server/application/models/sensor_model"
 	"github.com/wolf1996/MSM/server/application/session_manager"
 	"github.com/wolf1996/MSM/server/application/view"
 	"github.com/wolf1996/MSM/server/application/view/sensor"
+	"github.com/wolf1996/MSM/server/framework"
 	"github.com/wolf1996/MSM/server/logsystem"
 	"net/http"
 	"strconv"
-	"github.com/wolf1996/MSM/server/framework"
-	"github.com/wolf1996/MSM/server/application/error_codes"
 )
 
 func init() {
-	rout := framework.Route{Name:"ControllersInfo",
-			                Method:"GET",
-			                Pattern:"/controller/{id}/get_sensors",
-			                HandlerFunc: getControllerSensor,
+	rout := framework.Route{Name: "ControllersInfo",
+		Method:      "GET",
+		Pattern:     "/controller/{id}/get_sensors",
+		HandlerFunc: getControllerSensor,
 	}
 	framework.AddRout(rout)
 }
 
 func compileSensorInfo(v *sensor_model.SensorModel) *sensor.SensorInfo {
-	var deactivationDate,activationDate *string
+	var deactivationDate, activationDate *string
 	var controllerId *int64
-	if v.ActivationDate.Valid{
+	if v.ActivationDate.Valid {
 		activationDate = &v.ActivationDate.String
 	}
-	if v.DeactivationDate.Valid{
+	if v.DeactivationDate.Valid {
 		deactivationDate = &v.DeactivationDate.String
 	}
 	if v.ControllerId.Valid {
 		controllerId = &v.ControllerId.Int64
 	}
 	return &sensor.SensorInfo{&v.Id,
-					  &v.Name,
-		              controllerId,
-		              activationDate,
-		              &v.Status,
-					  deactivationDate,
-		              &v.SensorType,
-					  &v.Company,
+		&v.Name,
+		controllerId,
+		activationDate,
+		&v.Status,
+		deactivationDate,
+		&v.SensorType,
+		&v.Company,
 	}
 }
 

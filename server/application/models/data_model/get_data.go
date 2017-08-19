@@ -2,8 +2,8 @@ package data_model
 
 import (
 	"fmt"
-	"github.com/wolf1996/MSM/server/application/models"
 	"github.com/wolf1996/MSM/server/application/error_codes"
+	"github.com/wolf1996/MSM/server/application/models"
 )
 
 type DataModel Table

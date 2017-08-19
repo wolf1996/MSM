@@ -2,8 +2,8 @@ package view
 
 import (
 	"encoding/json"
-	"net/http"
 	"github.com/wolf1996/MSM/server/application/error_codes"
+	"net/http"
 )
 
 type msgObj interface {

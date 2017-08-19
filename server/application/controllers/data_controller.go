@@ -2,36 +2,36 @@ package controllers
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/wolf1996/MSM/server/application/error_codes"
 	"github.com/wolf1996/MSM/server/application/models"
 	"github.com/wolf1996/MSM/server/application/models/data_model"
+	"github.com/wolf1996/MSM/server/application/models/sensor_model"
 	"github.com/wolf1996/MSM/server/application/session_manager"
 	"github.com/wolf1996/MSM/server/application/view"
 	"github.com/wolf1996/MSM/server/application/view/data"
+	"github.com/wolf1996/MSM/server/framework"
 	"github.com/wolf1996/MSM/server/logsystem"
 	"net/http"
 	"strconv"
 	"time"
-	"github.com/wolf1996/MSM/server/application/models/sensor_model"
-	"github.com/wolf1996/MSM/server/framework"
-	"github.com/wolf1996/MSM/server/application/error_codes"
 )
 
 func init() {
-	rout := framework.Route{Name:"view stats",
-						    Method:"GET",
-							Pattern:"/sensor/{id}/view_stats",
-						    HandlerFunc:getSensorStatsData,
+	rout := framework.Route{Name: "view stats",
+		Method:      "GET",
+		Pattern:     "/sensor/{id}/view_stats",
+		HandlerFunc: getSensorStatsData,
 	}
 	framework.AddRout(rout)
-	rout = framework.Route{Name:"get data",
-					       Method:"GET",
-		                   Pattern:"/sensor/{id}/get_data",
-					       HandlerFunc:getSensorData,
+	rout = framework.Route{Name: "get data",
+		Method:      "GET",
+		Pattern:     "/sensor/{id}/get_data",
+		HandlerFunc: getSensorData,
 	}
 	framework.AddRout(rout)
 }
 
-func compileDataInfoStats(month, prev *data_model.DeltaData, year *data_model.AveragePerMonth) *data.DataInfoStats{
+func compileDataInfoStats(month, prev *data_model.DeltaData, year *data_model.AveragePerMonth) *data.DataInfoStats {
 	var monthReal, prevReal, yearReal *float64
 	if month.Delta.Valid {
 		monthReal = &month.Delta.Float64
@@ -118,7 +118,7 @@ func getSensorStatsData(w http.ResponseWriter, r *http.Request) {
 
 		}
 	}
-	sensorInfo, errCd := sensor_model.GetTaxedSensor(sensorId,id)
+	sensorInfo, errCd := sensor_model.GetTaxedSensor(sensorId, id)
 	if errCd != nil {
 		logsystem.Error.Printf("Invalid sensor")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -126,26 +126,26 @@ func getSensorStatsData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var accural float32
-	if stats.CurrentMonth != nil{
+	if stats.CurrentMonth != nil {
 		accural = float32((sensorInfo.Tax) * (*stats.CurrentMonth))
 	} else {
 		accural = 0
 	}
 	overpay := float32(10.0)
 	rl := float32(accural - overpay)
-	info := compileSensorVidgetData(sensorInfo, accural, overpay,rl,stats)
+	info := compileSensorVidgetData(sensorInfo, accural, overpay, rl, stats)
 	view.WriteMessage(&w, *info, error_codes.OK)
 }
 
 func compileSensorVidgetData(model sensor_model.SensorTaxedModel,
-						accural, overpay, rl float32, stats data.DataInfoStats) ( *data.SensorVidgetData){
+	accural, overpay, rl float32, stats data.DataInfoStats) *data.SensorVidgetData {
 	result := &data.SensorVidgetData{&model.Type,
-				&model.Name,
-				&model.Status,
-				&accural,
-				&overpay,
-				&rl,
-				&stats}
+		&model.Name,
+		&model.Status,
+		&accural,
+		&overpay,
+		&rl,
+		&stats}
 	return result
 }
 
@@ -230,8 +230,8 @@ func getSensorData(w http.ResponseWriter, r *http.Request) {
 
 func compileView(model data_model.DataModel) (result *data.DataInfo) {
 	result = &data.DataInfo{&model.SensorId,
-							&model.Date,
-							&model.Value,
-							&model.Hash}
+		&model.Date,
+		&model.Value,
+		&model.Hash}
 	return
 }

@@ -3,35 +3,35 @@ package controllers
 import (
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/wolf1996/MSM/server/application/error_codes"
 	"github.com/wolf1996/MSM/server/application/models/controller_model"
 	"github.com/wolf1996/MSM/server/application/models/sensor_model"
 	"github.com/wolf1996/MSM/server/application/session_manager"
 	"github.com/wolf1996/MSM/server/application/view"
 	"github.com/wolf1996/MSM/server/application/view/controller"
-	"github.com/wolf1996/MSM/server/logsystem"
 	"github.com/wolf1996/MSM/server/framework"
+	"github.com/wolf1996/MSM/server/logsystem"
 	"net/http"
 	"strconv"
-	"github.com/wolf1996/MSM/server/application/error_codes"
 )
 
 func init() {
-	rout := framework.Route{Name:"TestController",
-		 					Method:"GET",
-							Pattern:"/controller/test",
-							HandlerFunc:testController,
+	rout := framework.Route{Name: "TestController",
+		Method:      "GET",
+		Pattern:     "/controller/test",
+		HandlerFunc: testController,
 	}
 	framework.AddRout(rout)
-	rout = framework.Route{Name:"ControllersInfo",
-						   Method:"GET",
-		                   Pattern:"/controller/get_user_controllers",
-						   HandlerFunc:getUserController,
+	rout = framework.Route{Name: "ControllersInfo",
+		Method:      "GET",
+		Pattern:     "/controller/get_user_controllers",
+		HandlerFunc: getUserController,
 	}
 	framework.AddRout(rout)
-	rout = framework.Route{Name:"ControllersInfo",
-						   Method:"GET",
-						   Pattern:"/controller/{id}/get_controller_stats",
-						   HandlerFunc:getControllerView,
+	rout = framework.Route{Name: "ControllersInfo",
+		Method:      "GET",
+		Pattern:     "/controller/{id}/get_controller_stats",
+		HandlerFunc: getControllerView,
 	}
 	framework.AddRout(rout)
 }
@@ -40,24 +40,24 @@ func testController(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Welcome!")
 }
 
-func compileControllerInfo(model *controller_model.ControllerModel) *controller.ControllerInfo{
+func compileControllerInfo(model *controller_model.ControllerModel) *controller.ControllerInfo {
 	var activationDate *string
 	var deactivationDate *string
-	if model.ActivationDate.Valid{
+	if model.ActivationDate.Valid {
 		activationDate = &model.ActivationDate.String
 	}
-	if model.DeactivationDate.Valid{
+	if model.DeactivationDate.Valid {
 		deactivationDate = &model.DeactivationDate.String
 	}
 	return &controller.ControllerInfo{&model.Id,
-							&model.Name,
-							&model.UserId,
-							&model.Adres,
-							activationDate,
-							&model.Status,
-							&model.Mac,
-							deactivationDate,
-							&model.ControllerType,
+		&model.Name,
+		&model.UserId,
+		&model.Adres,
+		activationDate,
+		&model.Status,
+		&model.Mac,
+		deactivationDate,
+		&model.ControllerType,
 	}
 }
 
@@ -93,13 +93,12 @@ func getUserController(w http.ResponseWriter, r *http.Request) {
 	view.WriteMessage(&w, inf, error_codes.OK)
 }
 
-func compileControllerStats(id *int64, month, prevMonth, prevYear *float64) *controller.ControllerStats{
+func compileControllerStats(id *int64, month, prevMonth, prevYear *float64) *controller.ControllerStats {
 	return &controller.ControllerStats{id,
-		                              month,
-		                              prevMonth,
-		                              prevYear}
+		month,
+		prevMonth,
+		prevYear}
 }
-
 
 func getControllerView(w http.ResponseWriter, r *http.Request) {
 	sess, err := session_manager.GetSession(r, "user_session")

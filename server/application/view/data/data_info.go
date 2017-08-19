@@ -22,11 +22,11 @@ type DataInfoStats struct {
 type DataInfoStatsList []DataInfoStats
 
 type SensorVidgetData struct {
-	Type 		*int 		   `json:"type"`
-	Name 		*string 	   `json:"name"`
-	Status 		*int  		   `json:"status"`
-	Accrual	 	*float32	   `json:"accrual"`
-	Over 		*float32 	   `json:"over"`
-	Result 		*float32 	   `json:"result"`
-	Stats 		*DataInfoStats `json:"stats"`
+	Type    *int           `json:"type"`
+	Name    *string        `json:"name"`
+	Status  *int           `json:"status"`
+	Accrual *float32       `json:"accrual"`
+	Over    *float32       `json:"over"`
+	Result  *float32       `json:"result"`
+	Stats   *DataInfoStats `json:"stats"`
 }

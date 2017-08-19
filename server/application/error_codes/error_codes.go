@@ -1,7 +1,7 @@
 package error_codes
 
 const (
-	OK                      = iota
+	OK = iota
 	NOT_LOGGED
 	INVALID_AUTH_DATA
 	INVALID_OWNER

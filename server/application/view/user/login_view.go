@@ -11,7 +11,7 @@ var mailAddressRE = regexp.MustCompile(`^([a-zA-Z0-9][-_.a-zA-Z0-9]*)(@[-_.a-zA-
 
 func (a *LoginForm) Validate() bool {
 	var valid bool
-	if (a.EMail == nil )|| (a.Pass == nil){
+	if (a.EMail == nil) || (a.Pass == nil) {
 		return false
 	}
 	valid = mailAddressRE.MatchString(*a.EMail)

@@ -1,6 +1,5 @@
 package framework
 
-
-func AuthRequired(handlerFunc HandlerFunc){
+func AuthRequired(handlerFunc HandlerFunc) {
 
 }

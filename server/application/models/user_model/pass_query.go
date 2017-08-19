@@ -2,9 +2,9 @@ package user_model
 
 import (
 	"fmt"
+	"github.com/wolf1996/MSM/server/application/error_codes"
 	"github.com/wolf1996/MSM/server/application/models"
 	"strings"
-	"github.com/wolf1996/MSM/server/application/error_codes"
 )
 
 type loginData struct {
