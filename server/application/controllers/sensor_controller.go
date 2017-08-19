@@ -13,7 +13,11 @@ import (
 )
 
 func init() {
-	rout := framework.Route{"ControllersInfo", "GET", "/controller/{id}/get_sensors", getControllerSensor}
+	rout := framework.Route{Name:"ControllersInfo",
+			Method:"GET",
+			Pattern:"/controller/{id}/get_sensors",
+			HandlerFunc: getControllerSensor,
+	}
 	framework.AddRout(rout)
 }
 

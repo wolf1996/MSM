@@ -6,11 +6,16 @@ import (
 	"net/http"
 )
 
+type HandlerFunc  http.HandlerFunc
+
+type MiddleWare func ( HandlerFunc) HandlerFunc
+
 type Route struct {
 	Name        string
 	Method      string
 	Pattern     string
-	HandlerFunc http.HandlerFunc
+	MidleWare   []MiddleWare
+	HandlerFunc HandlerFunc
 }
 
 type Routes []Route
@@ -25,7 +30,7 @@ func GetRouters() *mux.Router {
 		Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
-			Handler(route.HandlerFunc)
+			Handler(http.HandlerFunc(route.HandlerFunc))
 	}
 	return router
 }
