@@ -10,13 +10,14 @@ import (
 	"net/http"
 	"strconv"
 	"github.com/wolf1996/MSM/server/framework"
+	"github.com/wolf1996/MSM/server/application/error_codes"
 )
 
 func init() {
 	rout := framework.Route{Name:"ControllersInfo",
-			Method:"GET",
-			Pattern:"/controller/{id}/get_sensors",
-			HandlerFunc: getControllerSensor,
+			                Method:"GET",
+			                Pattern:"/controller/{id}/get_sensors",
+			                HandlerFunc: getControllerSensor,
 	}
 	framework.AddRout(rout)
 }
@@ -48,7 +49,7 @@ func getControllerSensor(w http.ResponseWriter, r *http.Request) {
 	sess, err := session_manager.GetSession(r, "user_session")
 	if err != nil {
 		logsystem.Error.Printf("Get session error %s", err)
-		view.WriteMessage(&w, view.ErrorMsg{"Session Error"}, 2)
+		view.WriteMessage(&w, view.ErrorMsg{"Session Error"}, error_codes.SESSION_ERROR)
 		w.WriteHeader(http.StatusForbidden)
 		sess, _ = session_manager.NewSession(r, "user_session")
 		sess.Save(r, w)
@@ -58,14 +59,14 @@ func getControllerSensor(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		logsystem.Error.Printf("LogIn first")
 		w.WriteHeader(http.StatusForbidden)
-		view.WriteMessage(&w, view.ErrorMsg{"Login first"}, 1)
+		view.WriteMessage(&w, view.ErrorMsg{"Login first"}, error_codes.NOT_LOGGED)
 		return
 	}
 	vals := mux.Vars(r)
 	if vals == nil {
 		logsystem.Error.Printf("Can't parse argument %s", err)
 		w.WriteHeader(http.StatusBadRequest)
-		view.WriteMessage(&w, view.ErrorMsg{"Can't parse argument"}, 3)
+		view.WriteMessage(&w, view.ErrorMsg{"Can't parse argument"}, error_codes.INVALID_ARGUMENT)
 		return
 	}
 	cId := vals["id"]
@@ -73,14 +74,14 @@ func getControllerSensor(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logsystem.Error.Printf("Can't parse argument %s", err)
 		w.WriteHeader(http.StatusBadRequest)
-		view.WriteMessage(&w, view.ErrorMsg{"Can't parse argument"}, 3)
+		view.WriteMessage(&w, view.ErrorMsg{"Can't parse argument"}, error_codes.INVALID_ARGUMENT)
 		return
 	}
 	sensors, errDb := sensor_model.GetControlledSensors(controllerId, id)
 	if errDb != nil {
 		logsystem.Error.Printf("Database Error %s", errDb)
 		w.WriteHeader(http.StatusInternalServerError)
-		view.WriteMessage(&w, view.ErrorMsg{"Database Error"}, 2)
+		view.WriteMessage(&w, view.ErrorMsg{"Database Error"}, error_codes.DATABASE_ERROR)
 		return
 	}
 	var sensorsInfo sensor.SensorsInfo
@@ -88,5 +89,5 @@ func getControllerSensor(w http.ResponseWriter, r *http.Request) {
 		inf := *compileSensorInfo(&v)
 		sensorsInfo = append(sensorsInfo, inf)
 	}
-	view.WriteMessage(&w, sensorsInfo, 0)
+	view.WriteMessage(&w, sensorsInfo, error_codes.OK)
 }

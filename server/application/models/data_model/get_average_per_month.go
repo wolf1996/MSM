@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/wolf1996/MSM/server/application/models"
+	"github.com/wolf1996/MSM/server/application/error_codes"
 )
 
 type AveragePerMonth struct {
@@ -24,13 +25,13 @@ func GetAveragePerMonth(userId, sensorId int64, dateBegin string, dateEnd string
 		"SELECT avg(value) "+
 		"FROM mnths", sensorId, userId, dateBegin, dateEnd)
 	if err != nil {
-		return info, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: 2}
+		return info, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: error_codes.DATABASE_ERROR}
 	}
 	defer qr.Close()
 	for qr.Next() {
 		err = qr.Scan(&info.Average)
 		if err != nil {
-			return info, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: 2}
+			return info, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: error_codes.DATABASE_ERROR}
 		}
 	}
 	return info, nil
