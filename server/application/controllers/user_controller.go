@@ -33,6 +33,7 @@ func init() {
 		Method:      "GET",
 		Pattern:     "/user/user_info",
 		HandlerFunc: getUserInfo,
+		MidleWare: []framework.MiddleWare{framework.AuthRequired,},
 	}
 	framework.AddRout(rout)
 }
@@ -151,27 +152,19 @@ func compileUserInfo(info *user_model.UserInfoModel) *user.UserInfo {
 }
 
 func getUserInfo(w http.ResponseWriter, r *http.Request) {
-	sess, err := session_manager.GetSession(r, "user_session")
-	if err != nil {
-		logsystem.Error.Printf("Get session error %s", err)
-		view.WriteMessage(&w, "Session error", error_codes.SESSION_ERROR)
-		sess, _ = session_manager.NewSession(r, "user_session")
-		w.WriteHeader(http.StatusForbidden)
-		sess.Save(r, w)
+	cont := r.Context()
+	id,ok := cont.Value("id").(int64)
+	if !ok {
+		logsystem.Error.Printf("No Id in context")
+		w.WriteHeader(http.StatusInternalServerError)
+		view.WriteMessage(&w, view.ErrorMsg{"Server Error"}, error_codes.SERVER_ERROR)
 		return
 	}
-	id := sess.Values["user"]
-	if id == nil {
-		logsystem.Error.Printf("LogIn first")
-		w.WriteHeader(http.StatusForbidden)
-		view.WriteMessage(&w, view.ErrorMsg{"Login first"}, error_codes.NOT_LOGGED)
-		return
-	}
-	md, errDb := user_model.UserInfoQuery(id.(int64))
+	md, errDb := user_model.UserInfoQuery(id)
 	if errDb != nil {
 		logsystem.Error.Printf("Database Error %s", errDb)
 		w.WriteHeader(http.StatusInternalServerError)
-		view.WriteMessage(&w, view.ErrorMsg{"Database Error"}, error_codes.DATABASE_ERROR)
+		view.WriteMessage(&w, view.ErrorMsg{"Database Error"}, error_codes.SERVER_ERROR)
 		return
 	}
 	inf := compileUserInfo(&md)

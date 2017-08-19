@@ -58,7 +58,7 @@ func UserInfoQuery(id int64) (UserInfoModel, models.ErrorModel) {
 		&info.DateReceiving, &info.RegistrationAddres, &info.MailingAddres, &info.HomePhone, &info.MobilePhone,
 		&info.CitizenShip, &info.EMail)
 	if err != nil {
-		return UserInfoModel{}, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: error_codes.DATABASE_ERROR}
+		return UserInfoModel{}, models.ErrorModelImpl{Msg: fmt.Sprintf("Database Error %s", err), Code: error_codes.DATABASE_ERROR}
 	}
 	return info, nil
 }
