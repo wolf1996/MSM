@@ -12,15 +12,16 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"github.com/wolf1996/MSM/server/framework"
 )
 
 func init() {
-	rout := Route{"TestUser", "GET", "/user/test", test}
-	AddRout(rout)
-	rout = Route{"SignInUser", "POST", "/user/sign_in", signIn}
-	AddRout(rout)
-	rout = Route{"GetUserInfo", "GET", "/user/user_info", getUserInfo}
-	AddRout(rout)
+	rout := framework.Route{"TestUser", "GET", "/user/test", test}
+	framework.AddRout(rout)
+	rout = framework.Route{"SignInUser", "POST", "/user/sign_in", signIn}
+	framework.AddRout(rout)
+	rout = framework.Route{"GetUserInfo", "GET", "/user/user_info", getUserInfo}
+	framework.AddRout(rout)
 }
 
 func test(w http.ResponseWriter, r *http.Request) {

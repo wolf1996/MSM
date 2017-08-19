@@ -12,13 +12,14 @@ import (
 	"strconv"
 	"time"
 	"github.com/wolf1996/MSM/server/application/models/sensor_model"
+	"github.com/wolf1996/MSM/server/framework"
 )
 
 func init() {
-	rout := Route{"view stats", "GET", "/sensor/{id}/view_stats", getSensorStatsData}
-	AddRout(rout)
-	rout = Route{"get data", "GET", "/sensor/{id}/get_data", getSensorData}
-	AddRout(rout)
+	rout := framework.Route{"view stats", "GET", "/sensor/{id}/view_stats", getSensorStatsData}
+	framework.AddRout(rout)
+	rout = framework.Route{"get data", "GET", "/sensor/{id}/get_data", getSensorData}
+	framework.AddRout(rout)
 }
 
 func compileDataInfoStats(month, prev *data_model.DeltaData, year *data_model.AveragePerMonth) *data.DataInfoStats{

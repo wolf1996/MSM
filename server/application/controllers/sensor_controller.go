@@ -9,11 +9,12 @@ import (
 	"github.com/wolf1996/MSM/server/logsystem"
 	"net/http"
 	"strconv"
+	"github.com/wolf1996/MSM/server/framework"
 )
 
 func init() {
-	rout := Route{"ControllersInfo", "GET", "/controller/{id}/get_sensors", getControllerSensor}
-	AddRout(rout)
+	rout := framework.Route{"ControllersInfo", "GET", "/controller/{id}/get_sensors", getControllerSensor}
+	framework.AddRout(rout)
 }
 
 func compileSensorInfo(v *sensor_model.SensorModel) *sensor.SensorInfo {

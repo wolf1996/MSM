@@ -9,17 +9,18 @@ import (
 	"github.com/wolf1996/MSM/server/application/view"
 	"github.com/wolf1996/MSM/server/application/view/controller"
 	"github.com/wolf1996/MSM/server/logsystem"
+	"github.com/wolf1996/MSM/server/framework"
 	"net/http"
 	"strconv"
 )
 
 func init() {
-	rout := Route{"TestController", "GET", "/controller/test", testController}
-	AddRout(rout)
-	rout = Route{"ControllersInfo", "GET", "/controller/get_user_controllers", getUserController}
-	AddRout(rout)
-	rout = Route{"ControllersInfo", "GET", "/controller/{id}/get_controller_stats", getControllerView}
-	AddRout(rout)
+	rout := framework.Route{"TestController", "GET", "/controller/test", testController}
+	framework.AddRout(rout)
+	rout = framework.Route{"ControllersInfo", "GET", "/controller/get_user_controllers", getUserController}
+	framework.AddRout(rout)
+	rout = framework.Route{"ControllersInfo", "GET", "/controller/{id}/get_controller_stats", getControllerView}
+	framework.AddRout(rout)
 }
 
 func testController(w http.ResponseWriter, r *http.Request) {
