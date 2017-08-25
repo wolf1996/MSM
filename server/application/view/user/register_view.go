@@ -15,11 +15,8 @@ var emailRegexp = regexp.MustCompile(`^([a-zA-Z0-9][-_.a-zA-Z0-9]*)(@[-_.a-zA-Z0
 
 func (rf *RegisterForm) Validate() bool {
 	if rf.FirstName == "" || rf.LastName == "" ||
-		rf.Password == "" || rf.Email == "" {
+		len(rf.Password) < 6 || !emailRegexp.MatchString(rf.Email) {
 		return false
 	}
-	if valid := emailRegexp.MatchString(rf.Email); valid && len(rf.Password) >= 6 {
-		return true
-	}
-	return false
+	return true
 }
