@@ -9,7 +9,7 @@ import (
 //id SERIAL PRIMARY KEY,
 //name VARCHAR(256),
 //user_id INT REFERENCES USERS(id),
-//addres TEXT,
+//address TEXT,
 //activation_date DATE,
 //status INT,
 //mac MACADDR,

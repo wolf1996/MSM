@@ -7,7 +7,7 @@ import (
 )
 
 func CheckIsOwner(userId, controllerId int64) (bool, models.ErrorModel) {
-	qr, err := models.Database.Query("SELECT id, e_mail, pass_hash "+
+	qr, err := models.Database.Query("SELECT id, email, pass_hash "+
 		"FROM CONTROLLER WHERE (id = $1) and (user_id = $2) ;", controllerId, userId)
 	if err != nil {
 		return false, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: error_codes.DATABASE_ERROR}

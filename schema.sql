@@ -1,71 +1,70 @@
-DROP EXTENSION IF EXISTS CITEXT CASCADE ;
+DROP EXTENSION IF EXISTS CITEXT CASCADE;
 
-DROP TABLE IF EXISTS USERS CASCADE ;
-DROP TABLE IF EXISTS CONTROLLERS CASCADE ;
-DROP TABLE IF EXISTS SENSOR CASCADE ;
-DROP TABLE IF EXISTS DATA CASCADE ;
-DROP TABLE IF EXISTS TAX CASCADE ;
+DROP TABLE IF EXISTS USERS CASCADE;
+DROP TABLE IF EXISTS CONTROLLERS CASCADE;
+DROP TABLE IF EXISTS SENSOR CASCADE;
+DROP TABLE IF EXISTS DATA CASCADE;
+DROP TABLE IF EXISTS TAX CASCADE;
 
 CREATE EXTENSION IF NOT EXISTS CITEXT WITH SCHEMA public;
 
-CREATE TABLE IF NOT EXISTS USERS(
-  id SERIAL PRIMARY KEY,
-  family_name VARCHAR(256),
-  name VARCHAR(256),
-  second_name VARCHAR(256) DEFAULT  NULL ,
-  date_receiving DATE,
-  issued_by TEXT,
-  division_number VARCHAR(50),
-  registration_addres TEXT,
-  mailing_addres TEXT,
-  home_phone VARCHAR(20),
-  mobile_phone VARCHAR(20),
-  citizenship VARCHAR(256),
-  e_mail VARCHAR(50),
-  pass_hash VARCHAR(256)
+CREATE TABLE IF NOT EXISTS USERS (
+  id                   SERIAL PRIMARY KEY,
+  family_name          VARCHAR(256)       NOT NULL,
+  name                 VARCHAR(256)       NOT NULL,
+  second_name          VARCHAR(256) DEFAULT NULL,
+  date_receiving       DATE         DEFAULT NOW(),
+  issued_by            TEXT         DEFAULT NULL,
+  division_number      VARCHAR(50)  DEFAULT NULL,
+  registration_address TEXT         DEFAULT NULL,
+  mailing_address      TEXT         DEFAULT NULL,
+  home_phone           VARCHAR(20)  DEFAULT NULL,
+  mobile_phone         VARCHAR(20)  DEFAULT NULL,
+  citizenship          VARCHAR(256) DEFAULT NULL,
+  email                VARCHAR(50) UNIQUE NOT NULL,
+  pass_hash            VARCHAR(256)       NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS CONTROLLERS(
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(256),
-  user_id INT REFERENCES USERS(id),
-  addres TEXT,
-  activation_date DATE,
-  status INT,
-  mac MACADDR,
-  deactivation_date DATE,
-  controller_type INT
+CREATE TABLE IF NOT EXISTS CONTROLLERS (
+  id                SERIAL PRIMARY KEY,
+  name              VARCHAR(256)              NOT NULL UNIQUE,
+  user_id           INT REFERENCES USERS (id) NOT NULL,
+  address           TEXT                      NOT NULL,
+  activation_date   DATE DEFAULT NOW(),
+  status            INT  DEFAULT NULL,
+  mac               MACADDR                   NOT NULL,
+  deactivation_date DATE DEFAULT NOW(),
+  controller_type   INT  DEFAULT NULL
 );
-
 
 
 CREATE TABLE IF NOT EXISTS TAX (
   id   SERIAL PRIMARY KEY,
-  name VARCHAR(256),
-  TAX  FLOAT
+  name VARCHAR(256) NOT NULL,
+  TAX  FLOAT        NOT NULL
 );
 
 
-CREATE TABLE IF NOT EXISTS SENSOR(
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(256),
-  controller_id INT REFERENCES CONTROLLERS(id),
-  activation_date DATE,
-  status INT,
-  deactivation_date DATE,
-  sensor_type INT,
-  company  VARCHAR(256),
-  tax INT REFERENCES TAX(id)
+CREATE TABLE IF NOT EXISTS SENSOR (
+  id                SERIAL PRIMARY KEY,
+  name              VARCHAR(256)                    NOT NULL UNIQUE,
+  controller_id     INT REFERENCES CONTROLLERS (id) NOT NULL,
+  activation_date   DATE                    DEFAULT NOW(),
+  status            INT                     DEFAULT NULL,
+  deactivation_date DATE                    DEFAULT NOW(),
+  sensor_type       INT                     DEFAULT NULL,
+  company           VARCHAR(256)            DEFAULT NULL,
+  tax               INT REFERENCES TAX (id) DEFAULT NULL
 );
 
-CREATE TABLE IF NOT EXISTS DATA(
-  sensor_id INT REFERENCES SENSOR(id),
-  date DATE,
-  value BIGINT,
-  hs UUID
+CREATE TABLE IF NOT EXISTS DATA (
+  sensor_id INT REFERENCES SENSOR (id) NOT NULL,
+  date      DATE   DEFAULT NOW(),
+  value     BIGINT DEFAULT NULL,
+  hs        UUID   DEFAULT NULL
 );
 
-INSERT INTO  TAX VALUES (
+INSERT INTO TAX VALUES (
   1,
   'Флэш',
   2.5
@@ -80,7 +79,7 @@ INSERT INTO  TAX VALUES (
 
 
 INSERT INTO USERS VALUES (
-    1,
+  1,
   'Иванов',
   'Иван',
   'Иванович',
@@ -122,26 +121,39 @@ INSERT INTO SENSOR VALUES (
 );
 
 SELECT
-SENSOR.id, SENSOR.Name, SENSOR.controller_id, SENSOR.activation_date, SENSOR.status, SENSOR.deactivation_date, SENSOR.sensor_type, SENSOR.company
-FROM SENSOR INNER JOIN CONTROLLERS ON CONTROLLERS.id = SENSOR.controller_id
+  SENSOR.id,
+  SENSOR.Name,
+  SENSOR.controller_id,
+  SENSOR.activation_date,
+  SENSOR.status,
+  SENSOR.deactivation_date,
+  SENSOR.sensor_type,
+  SENSOR.company
+FROM SENSOR
+  INNER JOIN CONTROLLERS ON CONTROLLERS.id = SENSOR.controller_id
 WHERE controller_id = 1 AND user_id = 1;
 
 SELECT
-DATA.sensor_id, DATA.date, DATA.value, DATA.hs
-FROM DATA INNER JOIN SENSOR ON DATA.sensor_id = SENSOR.id
-INNER JOIN CONTROLLERS ON SENSOR.controller_id = CONTROLLERS.id
+  DATA.sensor_id,
+  DATA.date,
+  DATA.value,
+  DATA.hs
+FROM DATA
+  INNER JOIN SENSOR ON DATA.sensor_id = SENSOR.id
+  INNER JOIN CONTROLLERS ON SENSOR.controller_id = CONTROLLERS.id
 WHERE sensor_id = 1 AND user_id = 1 AND date > '1961-06-15'
 LIMIT 100;
 
-SELECT max(DATA.value)-min(DATA.value)
-		 FROM DATA INNER JOIN SENSOR ON DATA.sensor_id = SENSOR.id
-		 INNER JOIN CONTROLLERS ON SENSOR.controller_id = CONTROLLERS.id
-		 WHERE sensor_id = 1 AND user_id = 1 AND date >= '01-01-2017'
-		 AND date  < '01-02-2017';
+SELECT max(DATA.value) - min(DATA.value)
+FROM DATA
+  INNER JOIN SENSOR ON DATA.sensor_id = SENSOR.id
+  INNER JOIN CONTROLLERS ON SENSOR.controller_id = CONTROLLERS.id
+WHERE sensor_id = 1 AND user_id = 1 AND date >= '01-01-2017'
+      AND date < '01-02-2017';
 
 WITH mnths AS (SELECT
-                 extract(MONTH FROM date) AS mnth,
-                 (max(DATA.value)-min(DATA.value)) AS value
+                 extract(MONTH FROM date)            AS mnth,
+                 (max(DATA.value) - min(DATA.value)) AS value
                FROM DATA
                  INNER JOIN SENSOR ON DATA.sensor_id = SENSOR.id
                  INNER JOIN CONTROLLERS ON SENSOR.controller_id = CONTROLLERS.id
@@ -152,8 +164,8 @@ WITH mnths AS (SELECT
 SELECT avg(value)
 FROM mnths;
 
-SELECT * FROM DATA;
-
+SELECT *
+FROM DATA;
 
 
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO iot_api_user;

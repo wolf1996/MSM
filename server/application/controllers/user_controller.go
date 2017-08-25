@@ -132,7 +132,7 @@ func signIn(w http.ResponseWriter, r *http.Request) {
 
 func compileUserInfo(info *user_model.UserInfoModel) *user.UserInfo {
 	var familyName, name, secondName, dateReceiving, issuedBy *string
-	var divisionNumber, registrationAddres, mailingAddres, birthday *string
+	var divisionNumber, registrationAddress, mailingAddress, birthday *string
 	var sex *bool
 	var homePhone, mobilePhone, citizenShip *string
 	if info.FamilyName.Valid {
@@ -150,11 +150,11 @@ func compileUserInfo(info *user_model.UserInfoModel) *user.UserInfo {
 	if info.DivisionNumber.Valid {
 		divisionNumber = &info.DivisionNumber.String
 	}
-	if info.RegistrationAddres.Valid {
-		registrationAddres = &info.RegistrationAddres.String
+	if info.RegistrationAddress.Valid {
+		registrationAddress = &info.RegistrationAddress.String
 	}
-	if info.MailingAddres.Valid {
-		mailingAddres = &info.MailingAddres.String
+	if info.MailingAddress.Valid {
+		mailingAddress = &info.MailingAddress.String
 	}
 	if info.BirthDay.Valid {
 		birthday = &info.BirthDay.String
@@ -177,8 +177,8 @@ func compileUserInfo(info *user_model.UserInfoModel) *user.UserInfo {
 		                  dateReceiving,
 		                  issuedBy,
 		                  divisionNumber,
-				          registrationAddres,
-		                  mailingAddres,
+				          registrationAddress,
+		                  mailingAddress,
 		                  birthday,
 		                  sex,
 		                  homePhone,
