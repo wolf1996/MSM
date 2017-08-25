@@ -18,6 +18,8 @@ import (
 func init() {
 	rout := Route{"TestUser", "GET", "/user/test", test}
 	AddRout(rout)
+	rout = Route{"SignUpUser", "POST", "/user/sign_up", signUp}
+	AddRout(rout)
 	rout = Route{"SignInUser", "POST", "/user/sign_in", signIn}
 	AddRout(rout)
 	rout = Route{"GetUserInfo", "GET", "/user/user_info", getUserInfo}
@@ -26,6 +28,55 @@ func init() {
 
 func test(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Welcome!")
+}
+
+func signUp(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+	if err != nil {
+		logsystem.Error.Printf("Post Json loading in signUn %s", err)
+		w.WriteHeader(http.StatusBadRequest)
+		view.WriteMessage(&w, view.ErrorMsg{"Body Read"}, error_codes.INVALID_BODY_READ)
+		return
+	}
+	if err := r.Body.Close(); err != nil {
+		logsystem.Error.Printf("Body Close %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		view.WriteMessage(&w, view.ErrorMsg{"Body Close Error"}, error_codes.INVALID_BODY_CLOSE)
+		return
+	}
+	registerForm := new(user.RegisterForm)
+	if err := json.Unmarshal(body, registerForm); err != nil {
+		logsystem.Error.Printf("Unmarshal error %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		view.WriteMessage(&w, view.ErrorMsg{"Unmarshal error"}, error_codes.UNMARSHAL_ERROR)
+		return
+	}
+	if isValid := registerForm.Validate(); !isValid {
+		logsystem.Error.Printf("Invalid")
+		w.WriteHeader(http.StatusBadRequest)
+		view.WriteMessage(&w, view.ErrorMsg{"Validation Failed"}, error_codes.VALIDATION_FAILED)
+		return
+	}
+	var id int64
+	var logger models.ErrorModel
+	if id, logger = user_model.RegisterUser(registerForm); logger != nil {
+		logsystem.Error.Printf("Registration failed %s", logger)
+		w.WriteHeader(http.StatusForbidden)
+		view.WriteMessage(&w, view.ErrorMsg{"Registration Failed"}, error_codes.LOGIN_FAILED)
+		return
+	}
+	session, err := session_manager.GetSession(r, "user_session")
+	if err != nil {
+		logsystem.Error.Printf("Get session error %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		view.WriteMessage(&w, view.ErrorMsg{"Session error"}, error_codes.SESSION_ERROR)
+		session.Save(r, w)
+		return
+	}
+	session.Values["user"] = id
+	session.Save(r, w)
+	view.WriteMessage(&w, view.ErrorMsg{"Ok"}, error_codes.OK)
 }
 
 func signIn(w http.ResponseWriter, r *http.Request) {
