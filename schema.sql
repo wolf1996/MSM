@@ -30,10 +30,10 @@ CREATE TABLE IF NOT EXISTS CONTROLLERS (
   name              VARCHAR(256)              NOT NULL UNIQUE,
   user_id           INT REFERENCES USERS (id) NOT NULL,
   address           TEXT                      NOT NULL,
-  activation_date   DATE DEFAULT NOW(),
+  activation_date   DATE DEFAULT NULL,
   status            INT  DEFAULT NULL,
   mac               MACADDR                   NOT NULL,
-  deactivation_date DATE DEFAULT NOW(),
+  deactivation_date DATE DEFAULT NULL,
   controller_type   INT  DEFAULT NULL
 );
 
@@ -49,9 +49,9 @@ CREATE TABLE IF NOT EXISTS SENSOR (
   id                SERIAL PRIMARY KEY,
   name              VARCHAR(256)                    NOT NULL UNIQUE,
   controller_id     INT REFERENCES CONTROLLERS (id) NOT NULL,
-  activation_date   DATE                    DEFAULT NOW(),
+  activation_date   DATE                    DEFAULT NULL,
   status            INT                     DEFAULT NULL,
-  deactivation_date DATE                    DEFAULT NOW(),
+  deactivation_date DATE                    DEFAULT NULL,
   sensor_type       INT                     DEFAULT NULL,
   company           VARCHAR(256)            DEFAULT NULL,
   tax               INT REFERENCES TAX (id) DEFAULT NULL
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS SENSOR (
 
 CREATE TABLE IF NOT EXISTS DATA (
   sensor_id INT REFERENCES SENSOR (id) NOT NULL,
-  date      DATE   DEFAULT NOW(),
+  date      DATE   DEFAULT NULL,
   value     BIGINT DEFAULT NULL,
   hs        UUID   DEFAULT NULL
 );
