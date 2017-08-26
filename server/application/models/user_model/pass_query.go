@@ -14,8 +14,8 @@ type loginData struct {
 }
 
 func LogInUser(user, pass string) (int64, models.ErrorModel) {
-	qr, err := models.Database.Query("SELECT id, e_mail, pass_hash "+
-		"FROM USERS WHERE e_mail = $1 ;", user)
+	qr, err := models.Database.Query("SELECT id, email, pass_hash "+
+		"FROM USERS WHERE email = $1 ;", user)
 	if err != nil {
 		return 0, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: error_codes.DATABASE_ERROR}
 	}

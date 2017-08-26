@@ -8,20 +8,20 @@ import (
 )
 
 type UserInfoModel struct {
-	FamilyName         sql.NullString
-	Name               sql.NullString
-	SecondName         sql.NullString
-	DateReceiving      sql.NullString
-	IssuedBy           sql.NullString
-	DivisionNumber     sql.NullString
-	RegistrationAddres sql.NullString
-	MailingAddres      sql.NullString
-	BirthDay           sql.NullString
-	Sex                sql.NullBool
-	HomePhone          sql.NullString
-	MobilePhone        sql.NullString
-	CitizenShip        sql.NullString
-	EMail              string
+	FamilyName          sql.NullString
+	Name                sql.NullString
+	SecondName          sql.NullString
+	DateReceiving       sql.NullString
+	IssuedBy            sql.NullString
+	DivisionNumber      sql.NullString
+	RegistrationAddress sql.NullString
+	MailingAddress      sql.NullString
+	BirthDay            sql.NullString
+	Sex                 sql.NullBool
+	HomePhone           sql.NullString
+	MobilePhone         sql.NullString
+	CitizenShip         sql.NullString
+	EMail               string
 }
 
 /*
@@ -33,12 +33,12 @@ CREATE TABLE IF NOT EXISTS USERS(
   date_receiving DATE,
   issued_by TEXT,
   division_number VARCHAR(50),
-  registration_addres TEXT,
-  mailing_addres TEXT,
+  registration_address TEXT,
+  mailing_address TEXT,
   home_phone VARCHAR(20),
   mobile_phone VARCHAR(20),
   citizenship VARCHAR(256),
-  e_mail VARCHAR(50),
+  email VARCHAR(50),
   pass_hash VARCHAR(256)
 );
 */
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS USERS(
 func UserInfoQuery(id int64) (UserInfoModel, models.ErrorModel) {
 	qr, err := models.Database.Query(
 		"SELECT family_name, name, second_name, date_receiving, issued_by, division_number, "+
-			"registration_addres ,mailing_addres ,home_phone ,mobile_phone ,citizenship ,e_mail "+
+			"registration_address ,mailing_address ,home_phone ,mobile_phone ,citizenship ,email "+
 			"FROM USERS WHERE id = $1 ;", id)
 	if err != nil {
 		return UserInfoModel{}, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: error_codes.DATABASE_ERROR}
@@ -55,7 +55,7 @@ func UserInfoQuery(id int64) (UserInfoModel, models.ErrorModel) {
 	var info UserInfoModel
 	qr.Next()
 	err = qr.Scan(&info.FamilyName, &info.Name, &info.SecondName, &info.DateReceiving, &info.IssuedBy,
-		&info.DateReceiving, &info.RegistrationAddres, &info.MailingAddres, &info.HomePhone, &info.MobilePhone,
+		&info.DateReceiving, &info.RegistrationAddress, &info.MailingAddress, &info.HomePhone, &info.MobilePhone,
 		&info.CitizenShip, &info.EMail)
 	if err != nil {
 		return UserInfoModel{}, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: error_codes.DATABASE_ERROR}
