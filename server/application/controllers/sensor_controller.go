@@ -10,10 +10,15 @@ import (
 	"net/http"
 	"strconv"
 	"github.com/wolf1996/MSM/server/application/error_codes"
+	"io/ioutil"
+	"io"
+	"encoding/json"
 )
 
 func init() {
 	rout := Route{"ControllersInfo", "GET", "/controller/{id}/get_sensors", getControllerSensor}
+	AddRout(rout)
+	rout = Route{"RegisterController", "POST", "/sensor/register", registerSensor}
 	AddRout(rout)
 }
 
@@ -38,6 +43,53 @@ func compileSensorInfo(v *sensor_model.SensorModel) *sensor.SensorInfo {
 		              &v.SensorType,
 					  &v.Company,
 	}
+}
+
+func registerSensor(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+	if err != nil {
+		logsystem.Error.Printf("Post Json loading in registerController %s", err)
+		w.WriteHeader(http.StatusBadRequest)
+		view.WriteMessage(&w, view.ErrorMsg{"Body Read"}, error_codes.INVALID_BODY_READ)
+		return
+	}
+	form := new(sensor.RegisterSensorForm)
+	if err = json.Unmarshal(body, form); err != nil {
+		logsystem.Error.Printf("Unmarshal error %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		view.WriteMessage(&w, view.ErrorMsg{"Unmarshal error"}, error_codes.UNMARSHAL_ERROR)
+		return
+	}
+	if form.ControllerId == 0 || form.SensorId == 0 {
+		logsystem.Error.Printf("Invalid fields in json %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		view.WriteMessage(&w, view.ErrorMsg{"Invalid fields in json %s"}, error_codes.INVALID_JSON)
+		return
+	}
+	session, err := session_manager.GetSession(r, "user_session")
+	if err != nil {
+		logsystem.Error.Printf("Get session error %s", err)
+		view.WriteMessage(&w, view.ErrorMsg{"Session Error"}, error_codes.DATABASE_ERROR)
+		session, _ = session_manager.NewSession(r, "user_session")
+		w.WriteHeader(http.StatusForbidden)
+		session.Save(r, w)
+		return
+	}
+	userId := session.Values["user"]
+	if userId == nil {
+		logsystem.Error.Printf("LogIn first")
+		w.WriteHeader(http.StatusForbidden)
+		view.WriteMessage(&w, view.ErrorMsg{"Login first"}, error_codes.NOT_LOGGED)
+		return
+	}
+	if err_code := sensor_model.RegisterSensorQuery(form.ControllerId, form.SensorId); err_code != nil {
+		logsystem.Error.Printf("Controller registration failed %s", err_code)
+		w.WriteHeader(http.StatusForbidden)
+		view.WriteMessage(&w, view.ErrorMsg{"Controller Registration Failed"}, error_codes.LOGIN_FAILED)
+		return
+	}
+	view.WriteMessage(&w, view.ErrorMsg{"Controller Registration Success!"}, error_codes.OK)
 }
 
 func getControllerSensor(w http.ResponseWriter, r *http.Request) {
