@@ -25,24 +25,24 @@ type Routes []Route
 
 var routTable Routes
 
-func applyMiddlewares(handlerFunc ContHandlerFunc, middlewares []MiddleWare) lowHandlerFunc{
+func applyMiddlewares(handlerFunc ContHandlerFunc, middlewares []MiddleWare) ContHandlerFunc{
 	for _, i := range middlewares {
 		handlerFunc = i(handlerFunc)
 	}
-	var cont context.Context
-	return  AppContextMiddleware(cont,handlerFunc)
+	return  handlerFunc
 }
 
-func GetRouters() *mux.Router {
+func HandlerConstructor(appContext context.Context) *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 	for _, route := range routTable {
 		handler := applyMiddlewares(route.HandlerFunc, route.MidleWare)
+		clearHandler := AppContextMiddleware(appContext, handler)
 		logsystem.Info.Printf("%s registered to path %s", route.Name, route.Pattern)
 		router.
 			Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
-			Handler(http.HandlerFunc(handler))
+			Handler(http.HandlerFunc(clearHandler))
 	}
 	return router
 }
