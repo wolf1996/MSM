@@ -12,6 +12,7 @@ import (
 	"github.com/wolf1996/MSM/server/logsystem"
 	"net/http"
 	"strconv"
+	"context"
 )
 
 func init() {
@@ -38,11 +39,11 @@ func init() {
 	framework.AddRout(rout)
 }
 
-func testController(w http.ResponseWriter, r *http.Request) {
+func testController(appContext context.Context,w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Welcome!")
 }
 
-func compileControllerInfo(model *controller_model.ControllerModel) *controller.ControllerInfo {
+func compileControllerInfo(appContext context.Context,model *controller_model.ControllerModel) *controller.ControllerInfo {
 	var activationDate *string
 	var deactivationDate *string
 	if model.ActivationDate.Valid {
@@ -63,7 +64,7 @@ func compileControllerInfo(model *controller_model.ControllerModel) *controller.
 	}
 }
 
-func getUserController(w http.ResponseWriter, r *http.Request) {
+func getUserController(appContext context.Context,w http.ResponseWriter, r *http.Request) {
 	cont := r.Context()
 	id,ok := cont.Value("id").(int64)
 	if !ok {
@@ -81,7 +82,7 @@ func getUserController(w http.ResponseWriter, r *http.Request) {
 	}
 	var inf []controller.ControllerInfo
 	for _, i := range md {
-		buf := compileControllerInfo(&i)
+		buf := compileControllerInfo(appContext,&i)
 		inf = append(inf, *buf)
 	}
 	view.WriteMessage(&w, inf, error_codes.OK)
@@ -94,7 +95,7 @@ func compileControllerStats(id *int64, month, prevMonth, prevYear *float64) *con
 		prevYear}
 }
 
-func getControllerView(w http.ResponseWriter, r *http.Request) {
+func getControllerView(appContext context.Context,w http.ResponseWriter, r *http.Request) {
 	cont := r.Context()
 	id,ok := cont.Value("id").(int64)
 	if !ok {

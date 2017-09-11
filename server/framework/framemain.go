@@ -4,29 +4,33 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/wolf1996/MSM/server/logsystem"
 	"net/http"
+	"context"
 )
 
-type HandlerFunc http.HandlerFunc
+type lowHandlerFunc http.HandlerFunc
 
-type MiddleWare func(HandlerFunc) HandlerFunc
+type ContHandlerFunc func (appcontext context.Context, w http.ResponseWriter, r *http.Request)
+
+type MiddleWare func(ContHandlerFunc) ContHandlerFunc
 
 type Route struct {
 	Name        string
 	Method      string
 	Pattern     string
 	MidleWare   []MiddleWare
-	HandlerFunc HandlerFunc
+	HandlerFunc ContHandlerFunc
 }
 
 type Routes []Route
 
 var routTable Routes
 
-func applyMiddlewares(handlerFunc HandlerFunc, middlewares []MiddleWare) HandlerFunc{
+func applyMiddlewares(handlerFunc ContHandlerFunc, middlewares []MiddleWare) lowHandlerFunc{
 	for _, i := range middlewares {
 		handlerFunc = i(handlerFunc)
 	}
-	return handlerFunc
+	var cont context.Context
+	return  AppContextMiddleware(cont,handlerFunc)
 }
 
 func GetRouters() *mux.Router {

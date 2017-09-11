@@ -10,8 +10,8 @@ import (
 	"context"
 )
 
-func SessionRequired(handlerFunc HandlerFunc) HandlerFunc{
-	SessionRequiredHandler := func (w http.ResponseWriter, r *http.Request) {
+func SessionRequired(handlerFunc ContHandlerFunc) ContHandlerFunc{
+	SessionRequiredHandler := func (appContext context.Context,w http.ResponseWriter, r *http.Request) {
 		sess, err := session_manager.GetSession(r, "user_session")
 		if err != nil {
 			logsystem.Error.Printf("Get session error %s", err)
@@ -20,14 +20,14 @@ func SessionRequired(handlerFunc HandlerFunc) HandlerFunc{
 		}
 		cnt := r.Context()
 		cnt = context.WithValue(cnt, "session", *sess)
-		handlerFunc(w,r.WithContext(cnt))
+		handlerFunc(appContext ,w,r.WithContext(cnt))
 		return
 	}
 	return SessionRequiredHandler
 }
 
-func AuthRequired(handlerFunc HandlerFunc) HandlerFunc {
-	AuthRequiredHandler := func (w http.ResponseWriter, r *http.Request) {
+func AuthRequired(handlerFunc ContHandlerFunc) ContHandlerFunc {
+	AuthRequiredHandler := func (appContext context.Context, w http.ResponseWriter, r *http.Request) {
 		cnt := r.Context()
 		sess, ok := cnt.Value("session").(sessions.Session)
 		if !ok {
@@ -44,8 +44,14 @@ func AuthRequired(handlerFunc HandlerFunc) HandlerFunc {
 			return
 		}
 		cnt = context.WithValue(cnt, "id", id)
-		handlerFunc(w,r.WithContext(cnt))
+		handlerFunc(appContext, w,r.WithContext(cnt))
 	}
 	Handler := SessionRequired(AuthRequiredHandler)
 	return Handler
+}
+
+func AppContextMiddleware(appContext context.Context, handlerFunc ContHandlerFunc) lowHandlerFunc {
+	return func (w http.ResponseWriter, r *http.Request) {
+		handlerFunc(appContext, w, r)
+	}
 }
