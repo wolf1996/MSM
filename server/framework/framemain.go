@@ -4,12 +4,11 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/wolf1996/MSM/server/logsystem"
 	"net/http"
-	"context"
 )
 
 type lowHandlerFunc http.HandlerFunc
 
-type ContHandlerFunc func (appcontext context.Context, w http.ResponseWriter, r *http.Request)
+type ContHandlerFunc func (appcontext AppContext, w http.ResponseWriter, r *http.Request)
 
 type MiddleWare func(ContHandlerFunc) ContHandlerFunc
 
@@ -32,7 +31,7 @@ func applyMiddlewares(handlerFunc ContHandlerFunc, middlewares []MiddleWare) Con
 	return  handlerFunc
 }
 
-func HandlerConstructor(appContext context.Context) *mux.Router {
+func HandlerConstructor(appContext AppContext) *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 	for _, route := range routTable {
 		handler := applyMiddlewares(route.HandlerFunc, route.MidleWare)

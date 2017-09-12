@@ -10,7 +10,6 @@ import (
 	"github.com/wolf1996/MSM/server/logsystem"
 	"net/http"
 	"strconv"
-	"context"
 )
 
 func init() {
@@ -46,7 +45,7 @@ func compileSensorInfo(v *sensor_model.SensorModel) *sensor.SensorInfo {
 	}
 }
 
-func getControllerSensor(appContext context.Context,w http.ResponseWriter, r *http.Request) {
+func getControllerSensor(appContext framework.AppContext,w http.ResponseWriter, r *http.Request) {
 	cont := r.Context()
 	id,ok := cont.Value("id").(int64)
 	if !ok {

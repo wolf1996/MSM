@@ -11,7 +11,7 @@ import (
 )
 
 func SessionRequired(handlerFunc ContHandlerFunc) ContHandlerFunc{
-	SessionRequiredHandler := func (appContext context.Context,w http.ResponseWriter, r *http.Request) {
+	SessionRequiredHandler := func (appContext AppContext,w http.ResponseWriter, r *http.Request) {
 		sess, err := session_manager.GetSession(r, "user_session")
 		if err != nil {
 			logsystem.Error.Printf("Get session error %s", err)
@@ -27,7 +27,7 @@ func SessionRequired(handlerFunc ContHandlerFunc) ContHandlerFunc{
 }
 
 func AuthRequired(handlerFunc ContHandlerFunc) ContHandlerFunc {
-	AuthRequiredHandler := func (appContext context.Context, w http.ResponseWriter, r *http.Request) {
+	AuthRequiredHandler := func (appContext AppContext, w http.ResponseWriter, r *http.Request) {
 		cnt := r.Context()
 		sess, ok := cnt.Value("session").(sessions.Session)
 		if !ok {
@@ -50,7 +50,7 @@ func AuthRequired(handlerFunc ContHandlerFunc) ContHandlerFunc {
 	return Handler
 }
 
-func AppContextMiddleware(appContext context.Context, handlerFunc ContHandlerFunc) lowHandlerFunc {
+func AppContextMiddleware(appContext AppContext, handlerFunc ContHandlerFunc) lowHandlerFunc {
 	return func (w http.ResponseWriter, r *http.Request) {
 		handlerFunc(appContext, w, r)
 	}

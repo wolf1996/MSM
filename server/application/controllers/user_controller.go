@@ -14,7 +14,6 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"context"
 )
 
 func init() {
@@ -39,11 +38,11 @@ func init() {
 	framework.AddRout(rout)
 }
 
-func test(appContext context.Context,w http.ResponseWriter, r *http.Request) {
+func test(appContext framework.AppContext,w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Welcome!")
 }
 
-func signIn(appContext context.Context,w http.ResponseWriter, r *http.Request) {
+func signIn(appContext framework.AppContext,w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
@@ -152,7 +151,7 @@ func compileUserInfo(info *user_model.UserInfoModel) *user.UserInfo {
 	}
 }
 
-func getUserInfo(appContext context.Context,w http.ResponseWriter, r *http.Request) {
+func getUserInfo(appContext framework.AppContext,w http.ResponseWriter, r *http.Request) {
 	cont := r.Context()
 	id,ok := cont.Value("id").(int64)
 	if !ok {

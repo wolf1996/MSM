@@ -13,7 +13,6 @@ import (
 	"net/http"
 	"strconv"
 	"time"
-	"context"
 )
 
 func init() {
@@ -77,7 +76,7 @@ func getSensorStats(id int64, sensorId int64) (data.DataInfoStats, models.ErrorM
 	return *stats, nil
 }
 
-func getSensorStatsData(appContext context.Context,w http.ResponseWriter, r *http.Request) {
+func getSensorStatsData(appContext framework.AppContext,w http.ResponseWriter, r *http.Request) {
 	cont := r.Context()
 	id,ok := cont.Value("id").(int64)
 	if !ok {
@@ -143,7 +142,7 @@ func compileSensorVidgetData(model sensor_model.SensorTaxedModel,
 	return result
 }
 
-func getSensorData(appContext context.Context,w http.ResponseWriter, r *http.Request) {
+func getSensorData(appContext framework.AppContext, w http.ResponseWriter, r *http.Request) {
 	cont := r.Context()
 	id,ok := cont.Value("id").(int64)
 	if !ok {

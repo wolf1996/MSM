@@ -12,7 +12,6 @@ import (
 	"github.com/wolf1996/MSM/server/logsystem"
 	"net/http"
 	"strconv"
-	"context"
 )
 
 func init() {
@@ -39,11 +38,11 @@ func init() {
 	framework.AddRout(rout)
 }
 
-func testController(appContext context.Context,w http.ResponseWriter, r *http.Request) {
+func testController(appContext framework.AppContext,w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Welcome!")
 }
 
-func compileControllerInfo(appContext context.Context,model *controller_model.ControllerModel) *controller.ControllerInfo {
+func compileControllerInfo(appContext framework.AppContext,model *controller_model.ControllerModel) *controller.ControllerInfo {
 	var activationDate *string
 	var deactivationDate *string
 	if model.ActivationDate.Valid {
@@ -64,7 +63,7 @@ func compileControllerInfo(appContext context.Context,model *controller_model.Co
 	}
 }
 
-func getUserController(appContext context.Context,w http.ResponseWriter, r *http.Request) {
+func getUserController(appContext framework.AppContext,w http.ResponseWriter, r *http.Request) {
 	cont := r.Context()
 	id,ok := cont.Value("id").(int64)
 	if !ok {
@@ -95,7 +94,7 @@ func compileControllerStats(id *int64, month, prevMonth, prevYear *float64) *con
 		prevYear}
 }
 
-func getControllerView(appContext context.Context,w http.ResponseWriter, r *http.Request) {
+func getControllerView(appContext framework.AppContext,w http.ResponseWriter, r *http.Request) {
 	cont := r.Context()
 	id,ok := cont.Value("id").(int64)
 	if !ok {
