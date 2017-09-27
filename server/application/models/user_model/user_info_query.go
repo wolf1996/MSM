@@ -43,8 +43,8 @@ CREATE TABLE IF NOT EXISTS USERS(
 );
 */
 
-func UserInfoQuery(id int64) (UserInfoModel, models.ErrorModel) {
-	qr, err := models.Database.Query(
+func (Database *UserQueries)UserInfoQuery(id int64) (UserInfoModel, models.ErrorModel) {
+	qr, err := Database.Database.Query(
 		"SELECT family_name, name, second_name, date_receiving, issued_by, division_number, "+
 			"registration_addres ,mailing_addres ,home_phone ,mobile_phone ,citizenship ,e_mail "+
 			"FROM USERS WHERE id = $1 ;", id)

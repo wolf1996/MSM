@@ -7,9 +7,26 @@ import (
 	"net/http"
 )
 
-func AppStart(port, dbLogin, dbPass, dbURL string) {
+func prepareResource(port, dbLogin, dbPass, dbURL string)(cnt framework.AppContext, err error) {
+	db,err :=  models.GetDatabase(dbLogin, dbPass, dbURL)
+	if err != nil {
+		return
+	}
+	res := framework.Resource{
+		models.DbSystemName,
+		db,
+	}
+	framework.AddResource(res)
+	return framework.GetContext()
+}
+
+func AppStart(port, dbLogin, dbPass, dbURL string) error{
 	var cnt framework.AppContext
+	cnt, err := prepareResource(port, dbLogin, dbPass, dbURL)
+	if err != nil {
+		return  err
+	}
 	router := framework.HandlerConstructor(cnt)
-	models.Init(dbLogin, dbPass, dbURL)
 	http.ListenAndServe(port, router)
+	return nil
 }

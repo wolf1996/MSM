@@ -72,7 +72,7 @@ func getUserController(appContext framework.AppContext,w http.ResponseWriter, r 
 		view.WriteMessage(&w, view.ErrorMsg{"Server Error"}, error_codes.SERVER_ERROR)
 		return
 	}
-	md, errDb := controller_model.GetUserControllers(id)
+	md, errDb := controller_model.GetControllerQueries(appContext).GetUserControllers(id)
 	if errDb != nil {
 		logsystem.Error.Printf("Database Error %s", errDb)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -118,7 +118,7 @@ func getControllerView(appContext framework.AppContext,w http.ResponseWriter, r 
 		view.WriteMessage(&w, view.ErrorMsg{"Can't parse argument"}, error_codes.INVALID_ARGUMENT)
 		return
 	}
-	sensors, errDb := sensor_model.GetTaxedSensors(controllerId, id)
+	sensors, errDb := sensor_model.GetSensorQueries(appContext).GetTaxedSensors(controllerId, id)
 	if errDb != nil {
 		logsystem.Error.Printf("Database Error %s", errDb)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -128,7 +128,7 @@ func getControllerView(appContext framework.AppContext,w http.ResponseWriter, r 
 
 	var month, year, prevMonth float64
 	for _, i := range sensors {
-		stats, errCd := getSensorStats(id, i.Id)
+		stats, errCd := getSensorStats(appContext, id, i.Id)
 		if errCd != nil {
 			switch {
 			case errCd.Id() == error_codes.DATABASE_ERROR:

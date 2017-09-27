@@ -11,9 +11,9 @@ type AveragePerMonth struct {
 	Average sql.NullFloat64
 }
 
-func GetAveragePerMonth(userId, sensorId int64, dateBegin string, dateEnd string) (AveragePerMonth, models.ErrorModel) {
+func (Database *DataQueries)GetAveragePerMonth(userId, sensorId int64, dateBegin string, dateEnd string) (AveragePerMonth, models.ErrorModel) {
 	var info AveragePerMonth
-	qr, err := models.Database.Query(" WITH mnths AS (SELECT extract(MONTH FROM date) AS mnth, "+
+	qr, err := Database.Database.Query(" WITH mnths AS (SELECT extract(MONTH FROM date) AS mnth, "+
 		"(max(DATA.value)-min(DATA.value)) AS value "+
 		"FROM DATA "+
 		"INNER JOIN SENSOR ON DATA.sensor_id = SENSOR.id "+

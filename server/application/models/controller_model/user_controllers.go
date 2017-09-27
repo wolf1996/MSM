@@ -10,9 +10,9 @@ type ControllerModel Table
 
 type ControllerModels []ControllerModel
 
-func GetUserControllers(id int64) (ControllerModels, models.ErrorModel) {
+func (Database *ControllerQueries)GetUserControllers(id int64) (ControllerModels, models.ErrorModel) {
 	var infoSlice ControllerModels
-	qr, err := models.Database.Query(
+	qr, err := Database.Database.Query(
 		"SELECT * "+
 			"FROM CONTROLLERS WHERE user_id = $1 ;", id)
 	if err != nil {

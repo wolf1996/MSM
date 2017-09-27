@@ -69,7 +69,7 @@ func getControllerSensor(appContext framework.AppContext,w http.ResponseWriter, 
 		view.WriteMessage(&w, view.ErrorMsg{"Can't parse argument"}, error_codes.INVALID_ARGUMENT)
 		return
 	}
-	sensors, errDb := sensor_model.GetControlledSensors(controllerId, id)
+	sensors, errDb := sensor_model.GetSensorQueries(appContext).GetControlledSensors(controllerId, id)
 	if errDb != nil {
 		logsystem.Error.Printf("Database Error %s", errDb)
 		w.WriteHeader(http.StatusInternalServerError)

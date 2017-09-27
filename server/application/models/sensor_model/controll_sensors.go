@@ -29,9 +29,9 @@ type SensorTaxedModel struct {
 }
 type SensorTaxedModels []SensorTaxedModel
 
-func GetControlledSensors(controllerId, userId int64) (SensorModels, models.ErrorModel) {
+func (Database SensorQueries)GetControlledSensors(controllerId, userId int64) (SensorModels, models.ErrorModel) {
 	var infoSlice SensorModels
-	qr, err := models.Database.Query(
+	qr, err := Database.Database.Query(
 		" SELECT "+
 			" SENSOR.id, SENSOR.Name, SENSOR.controller_id, SENSOR.activation_date, SENSOR.status, SENSOR.deactivation_date, SENSOR.sensor_type, SENSOR.company"+
 			" FROM SENSOR INNER JOIN CONTROLLERS ON CONTROLLERS.id = SENSOR.controller_id WHERE controller_id = $1 AND user_id = $2;", controllerId, userId)
@@ -51,9 +51,9 @@ func GetControlledSensors(controllerId, userId int64) (SensorModels, models.Erro
 	return infoSlice, nil
 }
 
-func GetTaxedSensors(controllerId, userId int64) (SensorTaxedModels, models.ErrorModel) {
+func (Database *SensorQueries)GetTaxedSensors(controllerId, userId int64) (SensorTaxedModels, models.ErrorModel) {
 	var infoSlice SensorTaxedModels
-	qr, err := models.Database.Query(
+	qr, err := Database.Database.Query(
 		" SELECT "+
 			" SENSOR.id, SENSOR.Name, TAX.Tax, TAX.Name"+
 			" FROM SENSOR INNER JOIN CONTROLLERS ON CONTROLLERS.id = SENSOR.controller_id "+
@@ -74,9 +74,9 @@ func GetTaxedSensors(controllerId, userId int64) (SensorTaxedModels, models.Erro
 	return infoSlice, nil
 }
 
-func GetTaxedSensor(sensorId, userId int64) (SensorTaxedModel, models.ErrorModel) {
+func (Database *SensorQueries)GetTaxedSensor(sensorId, userId int64) (SensorTaxedModel, models.ErrorModel) {
 	var info SensorTaxedModel
-	qr, err := models.Database.Query(
+	qr, err := Database.Database.Query(
 		" SELECT "+
 			" SENSOR.id, SENSOR.Name, SENSOR.sensor_type, SENSOR.status , TAX.Tax, TAX.Name"+
 			" FROM SENSOR INNER JOIN CONTROLLERS ON CONTROLLERS.id = SENSOR.controller_id "+

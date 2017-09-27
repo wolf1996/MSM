@@ -74,7 +74,7 @@ func signIn(appContext framework.AppContext,w http.ResponseWriter, r *http.Reque
 	}
 	var id int64
 	var loggerr models.ErrorModel
-	if id, loggerr = user_model.LogInUser(*logIn.EMail, *logIn.Pass); loggerr != nil {
+	if id, loggerr = user_model.GetUserQueries(appContext).LogInUser(*logIn.EMail, *logIn.Pass); loggerr != nil {
 		logsystem.Error.Printf("Login failed %s", loggerr)
 		w.WriteHeader(http.StatusForbidden)
 		view.WriteMessage(&w, view.ErrorMsg{"Login Failed"}, error_codes.LOGIN_FAILED)
@@ -160,7 +160,7 @@ func getUserInfo(appContext framework.AppContext,w http.ResponseWriter, r *http.
 		view.WriteMessage(&w, view.ErrorMsg{"Server Error"}, error_codes.SERVER_ERROR)
 		return
 	}
-	md, errDb := user_model.UserInfoQuery(id)
+	md, errDb := user_model.GetUserQueries(appContext).UserInfoQuery(id)
 	if errDb != nil {
 		logsystem.Error.Printf("Database Error %s", errDb)
 		w.WriteHeader(http.StatusInternalServerError)

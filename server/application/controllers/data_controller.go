@@ -46,13 +46,13 @@ func compileDataInfoStats(month, prev *data_model.DeltaData, year *data_model.Av
 	return &data.DataInfoStats{monthReal, prevReal, yearReal}
 }
 
-func getSensorStats(id int64, sensorId int64) (data.DataInfoStats, models.ErrorModel) {
+func getSensorStats(appContext framework.AppContext,id int64, sensorId int64) (data.DataInfoStats, models.ErrorModel) {
 	nowtime := time.Now()
 	firstDay := time.Date(nowtime.Year(), nowtime.Month(), 1, 0, 0, 0, 0, nowtime.Location())
 	firstNextDay := nowtime.AddDate(0, 1, 0)
 	strBeg := firstDay.Format("2006-01-02")
 	strEnd := firstNextDay.Format("2006-01-02")
-	sumPerMonth, errDb := data_model.GetSum(id, sensorId, strBeg, strEnd)
+	sumPerMonth, errDb := data_model.GetDataQueries(appContext).GetSum(id, sensorId, strBeg, strEnd)
 	if errDb != nil {
 		return data.DataInfoStats{}, models.ErrorModelImpl{errDb.Error(), error_codes.DATABASE_ERROR}
 	}
@@ -60,7 +60,7 @@ func getSensorStats(id int64, sensorId int64) (data.DataInfoStats, models.ErrorM
 	firstNextDay = firstDay.AddDate(0, 1, 0)
 	strBeg = firstDay.Format("2006-01-02")
 	strEnd = firstNextDay.Format("2006-01-02")
-	sumPerPrevMonth, errDb := data_model.GetSum(id, sensorId, strBeg, strEnd)
+	sumPerPrevMonth, errDb := data_model.GetDataQueries(appContext).GetSum(id, sensorId, strBeg, strEnd)
 	if errDb != nil {
 		return data.DataInfoStats{}, models.ErrorModelImpl{errDb.Error(), error_codes.DATABASE_ERROR}
 	}
@@ -68,7 +68,7 @@ func getSensorStats(id int64, sensorId int64) (data.DataInfoStats, models.ErrorM
 	firstPrevYear := currYear.AddDate(-1, 0, 0)
 	strBeg = firstPrevYear.Format("2006-01-02")
 	strEnd = currYear.Format("2006-01-02")
-	yearAverPerMonth, errDb := data_model.GetAveragePerMonth(id, sensorId, strBeg, strEnd)
+	yearAverPerMonth, errDb := data_model.GetDataQueries(appContext).GetAveragePerMonth(id, sensorId, strBeg, strEnd)
 	if errDb != nil {
 		return data.DataInfoStats{}, models.ErrorModelImpl{errDb.Error(), error_codes.DATABASE_ERROR}
 	}
@@ -100,7 +100,7 @@ func getSensorStatsData(appContext framework.AppContext,w http.ResponseWriter, r
 		return
 	}
 
-	stats, errCd := getSensorStats(id, sensorId)
+	stats, errCd := getSensorStats(appContext, id, sensorId)
 	if errCd != nil {
 		switch {
 		case errCd.Id() == 1:
@@ -111,7 +111,7 @@ func getSensorStatsData(appContext framework.AppContext,w http.ResponseWriter, r
 
 		}
 	}
-	sensorInfo, errCd := sensor_model.GetTaxedSensor(sensorId, id)
+	sensorInfo, errCd := sensor_model.GetSensorQueries(appContext).GetTaxedSensor(sensorId, id)
 	if errCd != nil {
 		logsystem.Error.Printf("Invalid sensor")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -198,7 +198,7 @@ func getSensorData(appContext framework.AppContext, w http.ResponseWriter, r *ht
 		dateSt = append(dateSt, strtime)
 	}
 	date := dateSt[0]
-	dataLst, errDb := data_model.GetData(id, sensorId, date, limit)
+	dataLst, errDb := data_model.GetDataQueries(appContext).GetData(id, sensorId, date, limit)
 	if errDb != nil {
 		logsystem.Error.Printf("Database Error %s", errDb)
 		w.WriteHeader(http.StatusInternalServerError)

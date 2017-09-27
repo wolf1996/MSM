@@ -11,9 +11,9 @@ type DeltaData struct {
 	Delta sql.NullFloat64
 }
 
-func GetSum(userId, sensorId int64, dateBegin string, dateEnd string) (DeltaData, models.ErrorModel) {
+func (Database *DataQueries)GetSum(userId, sensorId int64, dateBegin string, dateEnd string) (DeltaData, models.ErrorModel) {
 	var info DeltaData
-	qr, err := models.Database.Query(" SELECT"+
+	qr, err := Database.Database.Query(" SELECT"+
 		" (max(DATA.value)-min(DATA.value))"+
 		" FROM DATA INNER JOIN SENSOR ON DATA.sensor_id = SENSOR.id"+
 		" INNER JOIN CONTROLLERS ON SENSOR.controller_id = CONTROLLERS.id"+
