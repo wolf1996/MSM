@@ -57,13 +57,13 @@ func registerSensor(w http.ResponseWriter, r *http.Request) {
 	form := new(sensor.RegisterSensorForm)
 	if err = json.Unmarshal(body, form); err != nil {
 		logsystem.Error.Printf("Unmarshal error %s", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		view.WriteMessage(&w, view.ErrorMsg{"Unmarshal error"}, error_codes.UNMARSHAL_ERROR)
 		return
 	}
-	if form.ControllerId == 0 || form.SensorId == 0 {
+	if form.Validate() != error_codes.OK {
 		logsystem.Error.Printf("Invalid fields in json %s", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		view.WriteMessage(&w, view.ErrorMsg{"Invalid fields in json %s"}, error_codes.INVALID_JSON)
 		return
 	}
@@ -83,8 +83,8 @@ func registerSensor(w http.ResponseWriter, r *http.Request) {
 		view.WriteMessage(&w, view.ErrorMsg{"Login first"}, error_codes.NOT_LOGGED)
 		return
 	}
-	if err_code := sensor_model.RegisterSensorQuery(form.ControllerId, form.SensorId); err_code != nil {
-		logsystem.Error.Printf("Controller registration failed %s", err_code)
+	if err = sensor_model.RegisterSensorQuery(form.ControllerId, form.SensorId, userId.(int64)); err != nil {
+		logsystem.Error.Printf("Controller registration failed %s", err)
 		w.WriteHeader(http.StatusForbidden)
 		view.WriteMessage(&w, view.ErrorMsg{"Controller Registration Failed"}, error_codes.LOGIN_FAILED)
 		return
