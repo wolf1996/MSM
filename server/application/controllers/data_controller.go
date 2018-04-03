@@ -111,7 +111,7 @@ func getSensorStatsData(w http.ResponseWriter, r *http.Request) {
 	}
 	sensorInfo, errCd := sensor_model.GetTaxedSensor(sensorId,id)
 	if errCd != nil {
-		logsystem.Error.Printf("Invalid sensor")
+		logsystem.Error.Printf("GetSensor Error %v", errCd)
 		w.WriteHeader(http.StatusInternalServerError)
 		view.WriteMessage(&w, view.ErrorMsg{"Invalid sensor"}, error_codes.DATABASE_INVALID_SENSOR)
 		return

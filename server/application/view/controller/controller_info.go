@@ -3,8 +3,8 @@ package controller
 type ControllerInfo struct {
 	Id               *int    `json:"id"`
 	Name             *string `json:"name"`
-	UserId           *int    `json:"user_id"`
-	Adres            *string `json:"adres"`
+	Object           *int    `json:"object_id"`
+	Meta             *string `json:"meta"`
 	ActivationDate   *string `json:"activation_date"`
 	Status           *int    `json:"status"`
 	Mac              *string `json:"mac"`

@@ -16,6 +16,7 @@ func GetData(userId, sensorId int64, date string, limit int64) (DataModels, mode
 		" DATA.sensor_id, DATA.date, DATA.value, DATA.hs"+
 		" FROM DATA INNER JOIN SENSOR ON DATA.sensor_id = SENSOR.id"+
 		" INNER JOIN CONTROLLERS ON SENSOR.controller_id = CONTROLLERS.id"+
+		" INNER JOIN OBJECTS ON CONTROLLERS.object_id = OBJECTS.id"+
 		" WHERE sensor_id = $1 AND user_id = $2 AND date < $3 "+
 		" LIMIT $4", sensorId, userId, date, limit)
 	if err != nil {

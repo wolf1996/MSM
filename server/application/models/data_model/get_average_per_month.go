@@ -18,6 +18,7 @@ func GetAveragePerMonth(userId, sensorId int64, dateBegin string, dateEnd string
 		"FROM DATA "+
 		"INNER JOIN SENSOR ON DATA.sensor_id = SENSOR.id "+
 		"INNER JOIN CONTROLLERS ON SENSOR.controller_id = CONTROLLERS.id "+
+		"INNER JOIN OBJECTS ON CONTROLLERS.object_id = OBJECTS.id "+
 		"WHERE sensor_id = $1 AND user_id = $2 AND date >= $3 "+
 		"                 AND date < $4 "+
 		"           GROUP BY 1 "+

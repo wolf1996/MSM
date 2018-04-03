@@ -20,8 +20,8 @@ import (
 type Table struct {
 	Id               int
 	Name             string
-	UserId           int
-	Adres            string
+	ObjectId         int
+	Meta             string
 	ActivationDate   sql.NullString
 	Status           int
 	Mac              string

@@ -1,4 +1,4 @@
-package controller_model
+package object_model
 
 import (
 	"fmt"
@@ -6,23 +6,22 @@ import (
 	"github.com/wolf1996/MSM/server/application/error_codes"
 )
 
-type ControllerModel Table
+type ObjectModel Table
 
-type ControllerModels []ControllerModel
+type ObjectModels []ObjectModel
 
-func GetUserControllers(id int64) (ControllerModels, models.ErrorModel) {
-	var infoSlice ControllerModels
+func GetUserObjects(id int64) (ObjectModels, models.ErrorModel) {
+	var infoSlice ObjectModels
 	qr, err := models.Database.Query(
 		"SELECT * "+
-			"FROM CONTROLLERS WHERE user_id = $1 ;", id)
+			"FROM OBJECTS WHERE user_id = $1 ;", id)
 	if err != nil {
 		return infoSlice, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: error_codes.DATABASE_ERROR}
 	}
 	defer qr.Close()
-	var info ControllerModel
+	var info ObjectModel
 	for qr.Next() {
-		err = qr.Scan(&info.Id, &info.Name, &info.UserId, &info.Adres, &info.ActivationDate,
-			&info.Status, &info.Mac, &info.DeactivationDate, &info.ControllerType)
+		err = qr.Scan(&info.Id, &info.Name, &info.UserId, &info.Addres,)
 		if err != nil {
 			return infoSlice, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: error_codes.DATABASE_ERROR}
 		}

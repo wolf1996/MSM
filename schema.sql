@@ -1,4 +1,13 @@
+DROP DATABASE IF EXISTS testgodb;
+CREATE DATABASE testgodb;
+
+\c testgodb;
+
 DROP EXTENSION IF EXISTS CITEXT CASCADE;
+
+-- DROP OWNED BY  iot_api_user CASCADE;
+-- DROP USER IF EXISTS iot_api_user;
+-- CREATE USER iot_api_user WITH PASSWORD 'qwerty';
 
 DROP TABLE IF EXISTS USERS CASCADE;
 DROP TABLE IF EXISTS CONTROLLERS CASCADE;
@@ -25,11 +34,18 @@ CREATE TABLE IF NOT EXISTS USERS (
   pass_hash            VARCHAR(256)       NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS OBJECTS (
+  id                SERIAL PRIMARY KEY,
+  name              VARCHAR(256)              NOT NULL,
+  user_id           INT REFERENCES USERS (id) NOT NULL,
+  address           TEXT                      NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS CONTROLLERS (
   id                SERIAL PRIMARY KEY,
   name              VARCHAR(256)              NOT NULL UNIQUE,
-  user_id           INT REFERENCES USERS (id) NOT NULL,
-  address           TEXT                      NOT NULL,
+  object_id         INT REFERENCES OBJECTS (id) NOT NULL,
+  meta              TEXT                      NOT NULL,
   activation_date   DATE DEFAULT NULL,
   status            INT  DEFAULT NULL,
   mac               MACADDR                   NOT NULL,
@@ -77,7 +93,6 @@ INSERT INTO TAX VALUES (
 --     'ff62d9d0cc926a7516e408b4ad1a0537'
 -- );
 
-
 INSERT INTO USERS VALUES (
   1,
   'Иванов',
@@ -94,6 +109,14 @@ INSERT INTO USERS VALUES (
   'ml@gmail.com',
   '123456'
 );
+
+INSERT INTO  OBJECTS VALUES (
+  1,
+  'Имя Объекта',
+  1,
+  'Улица Пушкина, Дом Колотушкина'
+);
+
 
 INSERT INTO CONTROLLERS VALUES (
   1,
@@ -131,6 +154,7 @@ SELECT
   SENSOR.company
 FROM SENSOR
   INNER JOIN CONTROLLERS ON CONTROLLERS.id = SENSOR.controller_id
+  INNER JOIN OBJECTS ON CONTROLLERS.object_id = OBJECTS.id
 WHERE controller_id = 1 AND user_id = 1;
 
 SELECT
@@ -141,13 +165,15 @@ SELECT
 FROM DATA
   INNER JOIN SENSOR ON DATA.sensor_id = SENSOR.id
   INNER JOIN CONTROLLERS ON SENSOR.controller_id = CONTROLLERS.id
-WHERE sensor_id = 1 AND user_id = 1 AND date > '1961-06-15'
+  INNER JOIN OBJECTS ON CONTROLLERS.object_id = OBJECTS.id
+WHERE sensor_id = 1 AND OBJECTS.user_id = 1 AND date > '1961-06-15'
 LIMIT 100;
 
 SELECT max(DATA.value) - min(DATA.value)
 FROM DATA
   INNER JOIN SENSOR ON DATA.sensor_id = SENSOR.id
   INNER JOIN CONTROLLERS ON SENSOR.controller_id = CONTROLLERS.id
+  INNER JOIN OBJECTS ON CONTROLLERS.object_id = OBJECTS.id
 WHERE sensor_id = 1 AND user_id = 1 AND date >= '01-01-2017'
       AND date < '01-02-2017';
 
@@ -157,6 +183,7 @@ WITH mnths AS (SELECT
                FROM DATA
                  INNER JOIN SENSOR ON DATA.sensor_id = SENSOR.id
                  INNER JOIN CONTROLLERS ON SENSOR.controller_id = CONTROLLERS.id
+                 INNER JOIN OBJECTS ON CONTROLLERS.object_id = OBJECTS.id
                WHERE sensor_id = 1 AND user_id = 1 AND date < '12-12-2017'
                      AND date > '12-12-2016'
                GROUP BY 1

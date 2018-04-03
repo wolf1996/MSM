@@ -34,7 +34,9 @@ func GetControlledSensors(controllerId, userId int64) (SensorModels, models.Erro
 	qr, err := models.Database.Query(
 		" SELECT "+
 			" SENSOR.id, SENSOR.Name, SENSOR.controller_id, SENSOR.activation_date, SENSOR.status, SENSOR.deactivation_date, SENSOR.sensor_type, SENSOR.company"+
-			" FROM SENSOR INNER JOIN CONTROLLERS ON CONTROLLERS.id = SENSOR.controller_id WHERE controller_id = $1 AND user_id = $2;", controllerId, userId)
+			" FROM SENSOR INNER JOIN CONTROLLERS ON CONTROLLERS.id = SENSOR.controller_id "+
+			" INNER JOIN OBJECTS ON CONTROLLERS.object_id = OBJECTS.id"+
+			" WHERE controller_id = $1 AND user_id = $2;", controllerId, userId)
 	if err != nil {
 		return infoSlice, models.ErrorModelImpl{Msg: fmt.Sprint("Database Error %s", err), Code: error_codes.DATABASE_ERROR}
 	}
@@ -57,6 +59,7 @@ func GetTaxedSensors(controllerId, userId int64) (SensorTaxedModels, models.Erro
 		" SELECT "+
 			" SENSOR.id, SENSOR.Name, TAX.Tax, TAX.Name"+
 			" FROM SENSOR INNER JOIN CONTROLLERS ON CONTROLLERS.id = SENSOR.controller_id "+
+			" INNER JOIN OBJECTS ON CONTROLLERS.object_id = OBJECTS.id"+
 			" JOIN TAX ON SENSOR.tax = TAX.id "+
 			" WHERE controller_id = $1 AND user_id = $2;", controllerId, userId)
 	if err != nil {
@@ -80,6 +83,7 @@ func GetTaxedSensor(sensorId, userId int64) (SensorTaxedModel, models.ErrorModel
 		" SELECT "+
 			" SENSOR.id, SENSOR.Name, SENSOR.sensor_type, SENSOR.status , TAX.Tax, TAX.Name"+
 			" FROM SENSOR INNER JOIN CONTROLLERS ON CONTROLLERS.id = SENSOR.controller_id "+
+			" INNER JOIN OBJECTS ON CONTROLLERS.object_id = OBJECTS.id"+
 			" JOIN TAX ON SENSOR.tax = TAX.id "+
 			" WHERE SENSOR.id = $1 AND user_id = $2;", sensorId, userId)
 	if err != nil {
