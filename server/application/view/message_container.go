@@ -11,7 +11,7 @@ type msgObj interface {
 
 type messageContainer struct {
 	Code int    `json:"code"`
-	Msg  msgObj `json:"message"`
+	Msg  msgObj `json:"msg"`
 }
 
 func WriteMessage(w *http.ResponseWriter, msg msgObj, res int) ErrorView {
