@@ -3,7 +3,7 @@ package user
 import "regexp"
 
 type LoginForm struct {
-	EMail *string `json:"email"`
+	EMail *string `json:"e_mail"`
 	Pass  *string `json:"password"`
 }
 
