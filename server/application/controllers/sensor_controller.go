@@ -18,11 +18,11 @@ import (
 func init() {
 	rout := Route{"ControllersInfo", "GET", "/controller/{id}/get_sensors", getControllerSensor}
 	AddRout(rout)
-	rout = Route{"RegisterController", "POST", "/sensor/register", registerSensor}
+	rout = Route{"RegisterSensor", "POST", "/sensor/register", registerSensor}
 	AddRout(rout)
 }
 
-func compileSensorInfo(v *sensor_model.SensorModel) *sensor.SensorInfo {
+func compileSensorInfo(v sensor_model.SensorModel) sensor.SensorInfo {
 	var deactivationDate,activationDate *string
 	var controllerId *int64
 	if v.ActivationDate.Valid{
@@ -34,7 +34,7 @@ func compileSensorInfo(v *sensor_model.SensorModel) *sensor.SensorInfo {
 	if v.ControllerId.Valid {
 		controllerId = &v.ControllerId.Int64
 	}
-	return &sensor.SensorInfo{&v.Id,
+	return sensor.SensorInfo{&v.Id,
 					  &v.Name,
 		              controllerId,
 		              activationDate,
@@ -125,6 +125,7 @@ func getControllerSensor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	sensors, errDb := sensor_model.GetControlledSensors(controllerId, id)
+	logsystem.Info.Printf("info %v", sensors)
 	if errDb != nil {
 		logsystem.Error.Printf("Database Error %s", errDb)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -133,7 +134,7 @@ func getControllerSensor(w http.ResponseWriter, r *http.Request) {
 	}
 	var sensorsInfo sensor.SensorsInfo
 	for _, v := range sensors {
-		inf := *compileSensorInfo(&v)
+		inf := compileSensorInfo(v)
 		sensorsInfo = append(sensorsInfo, inf)
 	}
 	view.WriteMessage(&w, sensorsInfo, error_codes.OK)

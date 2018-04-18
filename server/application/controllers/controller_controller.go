@@ -32,7 +32,7 @@ func testController(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Welcome!")
 }
 
-func compileControllerInfo(model *controller_model.ControllerModel) *controller.ControllerInfo{
+func compileControllerInfo(model controller_model.ControllerModel) controller.ControllerInfo{
 	var activationDate *string
 	var deactivationDate *string
 	if model.ActivationDate.Valid{
@@ -41,7 +41,7 @@ func compileControllerInfo(model *controller_model.ControllerModel) *controller.
 	if model.DeactivationDate.Valid{
 		deactivationDate = &model.DeactivationDate.String
 	}
-	return &controller.ControllerInfo{&model.Id,
+	return controller.ControllerInfo{&model.Id,
 							&model.Name,
 							&model.ObjectId,
 							&model.Meta,
@@ -91,9 +91,10 @@ func registerController(w http.ResponseWriter, r *http.Request) {
 		view.WriteMessage(&w, view.ErrorMsg{"Login first"}, error_codes.NOT_LOGGED)
 		return
 	}
-	if err_code := controller_model.RegisterControllerQuery(userId.(int64), form.ControllerId); err_code != nil {
+	// logsystem.Info.Printf("%v", form)
+	if err_code := controller_model.RegisterControllerQuery(userId.(int64), form.ControllerId, form.ObjectId); err_code != nil {
 		logsystem.Error.Printf("Controller registration failed %s", err_code)
-		w.WriteHeader(http.StatusForbidden)
+		w.WriteHeader(http.StatusConflict)
 		view.WriteMessage(&w, view.ErrorMsg{"Controller Registration Failed"}, error_codes.LOGIN_FAILED)
 		return
 	}
@@ -126,8 +127,8 @@ func getUserController(w http.ResponseWriter, r *http.Request) {
 	}
 	var inf []controller.ControllerInfo
 	for _, i := range md {
-		buf := compileControllerInfo(&i)
-		inf = append(inf, *buf)
+		buf := compileControllerInfo(i)
+		inf = append(inf, buf)
 	}
 	view.WriteMessage(&w, inf, error_codes.OK)
 }

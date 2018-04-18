@@ -7,19 +7,25 @@ import (
 )
 
 func RegisterSensorQuery(controllerId, sensorId, userId int64) models.ErrorModel {
-	checkQuery := "SELECT id FROM controllers WHERE user_id = $1"
+	checkQuery := "SELECT controllers.id FROM controllers" +
+	" join objects on controllers.object_id=objects.id WHERE objects.user_id = $1"
 	qr, err := models.Database.Query(checkQuery, userId)
-	defer qr.Close()
 	if err != nil {
 		return models.ErrorModelImpl{Msg: fmt.Sprint("Database Error ", err), Code: error_codes.DATABASE_ERROR}
 	}
-	var expectedId int64
+	defer qr.Close()
+	flag := false
 	for qr.Next() {
+		var expectedId int64
 		if err = qr.Scan(&expectedId); err != nil {
 			return models.ErrorModelImpl{Msg: fmt.Sprint("Database Error ", err), Code: error_codes.DATABASE_ERROR}
 		}
+		if expectedId == controllerId{
+			flag = true
+		}
+
 	}
-	if controllerId != expectedId {
+	if !flag {
 		return models.ErrorModelImpl{Msg: fmt.Sprint("Ownership error ", err), Code: error_codes.INVALID_OWNER}
 	}
 	updateQuery := "UPDATE SENSOR SET controller_id = $1, status = 1, activation_date = NOW() WHERE id = $2 RETURNING id"
